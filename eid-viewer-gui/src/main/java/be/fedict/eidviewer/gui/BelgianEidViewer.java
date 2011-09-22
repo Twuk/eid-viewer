@@ -45,6 +45,8 @@ import java.util.EnumMap;
 import java.util.Locale;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.Properties;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.ActionMap;
@@ -103,6 +105,10 @@ public class BelgianEidViewer extends javax.swing.JFrame implements View, Observ
 
     private void start()
     {
+        Properties properties=System.getProperties();
+        Set<String> labels=properties.stringPropertyNames();
+        for(String label : labels)
+            logger.log(Level.INFO, "{0}={1}", new Object[]{label, properties.getProperty(label)});
         logger.fine("starting..");
         ActionMap actionMap = Application.getInstance().getContext().getActionMap(BelgianEidViewer.class, this);
         printAction = actionMap.get("print");       // NOI18N
