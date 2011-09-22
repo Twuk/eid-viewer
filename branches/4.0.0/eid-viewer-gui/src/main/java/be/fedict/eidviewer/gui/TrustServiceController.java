@@ -171,6 +171,7 @@ public class TrustServiceController extends Observable implements Runnable
                 {
                     logger.log(Level.SEVERE, "Transport Exception Trying to Validate Certificate Chain",ex);
                     logger.log(Level.SEVERE, "Check the Proxy Settings, DNS Availability and Trust Service Accessibility",ex);
+                    logger.log(Level.SEVERE, "Trust Service URL used: {0}",new String[] {trustServiceURL});
                     chain.setTrustServiceException(ex);
                 }
                 catch(Exception ex)
