@@ -106,7 +106,7 @@ public class TrustServiceController extends Observable implements Runnable
     public TrustServiceController start()
     {
         logger.fine("Starting");
-        worker=new Thread(this,"TrustServiceController");
+        worker=new Thread(this);
         worker.setDaemon(true);
         worker.start();
         return this;
