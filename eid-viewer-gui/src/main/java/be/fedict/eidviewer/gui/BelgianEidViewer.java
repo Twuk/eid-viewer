@@ -94,6 +94,7 @@ public class BelgianEidViewer extends javax.swing.JFrame implements View, Observ
 
     public BelgianEidViewer()
     {
+        Locale.setDefault(ViewerPrefs.getLocale());
         bundle = ResourceBundle.getBundle("be/fedict/eidviewer/gui/resources/BelgianEidViewer");
         coreMessages = new Messages(Locale.getDefault());
         initComponents();
@@ -251,7 +252,6 @@ public class BelgianEidViewer extends javax.swing.JFrame implements View, Observ
 
         ActionMap actionMap = Application.getInstance().getContext().getActionMap(BelgianEidViewer.class, this);
         printButton.setAction(actionMap.get("print")); // NOI18N
-        printButton.setIcon(new ImageIcon(getClass().getResource("/be/fedict/eidviewer/gui/resources/icons/print.png"))); // NOI18N
         printButton.setHideActionText(true);
         printButton.setMaximumSize(new Dimension(200, 50));
         printButton.setMinimumSize(new Dimension(50, 50));

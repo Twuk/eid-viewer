@@ -17,14 +17,19 @@
  */
 package be.fedict.eidviewer.gui;
 
+import be.fedict.eidviewer.gui.helper.ComparableLocale;
 import be.fedict.eidviewer.gui.helper.PositiveIntegerDocument;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.Locale;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.ResourceBundle;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
@@ -43,6 +48,7 @@ public class PreferencesPanel extends javax.swing.JPanel implements Observer, Co
     {
         bundle = ResourceBundle.getBundle("be/fedict/eidviewer/gui/resources/PreferencesPanel");
         initComponents();
+        initLanguagePrefsPanel();
         initProxyPrefsPanel();
         initDiagnosticsPrefsPanel();
     }
@@ -168,6 +174,12 @@ public class PreferencesPanel extends javax.swing.JPanel implements Observer, Co
         java.awt.GridBagConstraints gridBagConstraints;
 
         jPanel1 = new javax.swing.JPanel();
+        jPanel2 = new javax.swing.JPanel();
+        languageLabelAndComboSeparator = new javax.swing.JLabel();
+        languageLabelAndComboPanel = new javax.swing.JPanel();
+        languageLabel = new javax.swing.JLabel();
+        languageCombo = new javax.swing.JComboBox();
+        languageSettingsTakeEffectNotice = new javax.swing.JLabel();
         proxyPrefsPanel = new javax.swing.JPanel();
         httpProxyPortLabel = new javax.swing.JLabel();
         useProxyCheckbox = new javax.swing.JCheckBox();
@@ -183,7 +195,43 @@ public class PreferencesPanel extends javax.swing.JPanel implements Observer, Co
         setLayout(new java.awt.BorderLayout());
 
         jPanel1.setName("jPanel1"); // NOI18N
-        jPanel1.setLayout(new java.awt.GridLayout(2, 1));
+        jPanel1.setLayout(new java.awt.GridLayout(3, 1));
+
+        jPanel2.setName("jPanel2"); // NOI18N
+        jPanel2.setLayout(new java.awt.GridBagLayout());
+
+        languageLabelAndComboSeparator.setName("languageLabelAndComboSeparator"); // NOI18N
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.ipadx = 8;
+        gridBagConstraints.ipady = 8;
+        jPanel2.add(languageLabelAndComboSeparator, gridBagConstraints);
+
+        languageLabelAndComboPanel.setName("languageLabelAndComboPanel"); // NOI18N
+
+        languageLabel.setText(bundle.getString("languageLabel")); // NOI18N
+        languageLabel.setName("languageLabel"); // NOI18N
+        languageLabelAndComboPanel.add(languageLabel);
+
+        languageCombo.setName("languageCombo"); // NOI18N
+        languageLabelAndComboPanel.add(languageCombo);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        jPanel2.add(languageLabelAndComboPanel, gridBagConstraints);
+
+        languageSettingsTakeEffectNotice.setForeground(new java.awt.Color(153, 153, 153));
+        languageSettingsTakeEffectNotice.setText(bundle.getString("languageChangeOnStartupNotice")); // NOI18N
+        languageSettingsTakeEffectNotice.setName("languageSettingsTakeEffectNotice"); // NOI18N
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        jPanel2.add(languageSettingsTakeEffectNotice, gridBagConstraints);
+
+        jPanel1.add(jPanel2);
 
         proxyPrefsPanel.setBorder(javax.swing.BorderFactory.createCompoundBorder(javax.swing.BorderFactory.createEtchedBorder(), javax.swing.BorderFactory.createEmptyBorder(16, 16, 16, 16)));
         proxyPrefsPanel.setName("proxyPrefsPanel"); // NOI18N
@@ -277,6 +325,12 @@ public class PreferencesPanel extends javax.swing.JPanel implements Observer, Co
     private javax.swing.JTextField httpProxyPort;
     private javax.swing.JLabel httpProxyPortLabel;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel2;
+    private javax.swing.JComboBox languageCombo;
+    private javax.swing.JLabel languageLabel;
+    private javax.swing.JPanel languageLabelAndComboPanel;
+    private javax.swing.JLabel languageLabelAndComboSeparator;
+    private javax.swing.JLabel languageSettingsTakeEffectNotice;
     private javax.swing.JPanel proxyPrefsPanel;
     private javax.swing.JCheckBox showLogCheckbox;
     private javax.swing.JLabel spacer;
@@ -288,7 +342,6 @@ public class PreferencesPanel extends javax.swing.JPanel implements Observer, Co
     {
         java.awt.EventQueue.invokeLater(new Runnable()
         {
-
             public void run()
             {
                 updateApplyButtonEnabled();
@@ -367,5 +420,52 @@ public class PreferencesPanel extends javax.swing.JPanel implements Observer, Co
     private void fillDiagnosticsPrefs()
     {
         showLogCheckbox.setSelected(ViewerPrefs.getShowLogTab());
+    }
+    
+    private void updateLanguageSettingsTakeEffectNotice()
+    {
+        languageSettingsTakeEffectNotice.setVisible(!ViewerPrefs.getLocale().equals(Locale.getDefault()));
+    }
+    
+    private void initLanguagePrefsPanel()
+    {
+        Object[] languages=new Object[4];
+        languages[0]=new ComparableLocale("en","US");
+        languages[1]=new ComparableLocale("nl","BE");
+        languages[2]=new ComparableLocale("fr","BE");
+        languages[3]=new ComparableLocale("de","BE");
+
+        Comparator comparator=new Comparator<ComparableLocale>()
+        {
+            public int compare(ComparableLocale thisOne, ComparableLocale thatOne)
+            {
+                return thisOne.getLocale().getDisplayLanguage().compareTo(thatOne.getLocale().getDisplayLanguage());
+            }
+        };
+        Arrays.sort(languages,comparator);
+
+        languageCombo.setModel(new DefaultComboBoxModel(languages));
+
+        ComparableLocale ourLocale=new ComparableLocale(ViewerPrefs.getLocale().getLanguage(),ViewerPrefs.getLocale().getCountry());
+        languageCombo.setSelectedItem(ourLocale);
+
+        languageCombo.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent ae)
+            {
+                java.awt.EventQueue.invokeLater(new Runnable()
+                {
+                    public void run()
+                    {
+                        Locale newLocale=((ComparableLocale)languageCombo.getSelectedItem()).getLocale();
+                        System.err.println(newLocale.toString());
+                        ViewerPrefs.setLocale(newLocale);
+                        updateLanguageSettingsTakeEffectNotice();
+                    }
+                });
+            }
+        });
+        
+        updateLanguageSettingsTakeEffectNotice();
     }
 }

@@ -18,6 +18,7 @@
 
 package be.fedict.eidviewer.gui;
 
+import java.util.Locale;
 import java.util.logging.Level;
 import java.util.prefs.Preferences;
 
@@ -35,6 +36,9 @@ public class ViewerPrefs
     public static final String          HTTP_PROXY_PORT                  = "http_proxy_port";
     public static final String          SHOW_LOG_TAB                     = "show_log_tab";
     public static final String          LOG_LEVEL                        = "log_level";
+    public static final String          LOCALE_LANGUAGE                  = "locale_language";
+    public static final String          LOCALE_COUNTRY                   = "locale_country";
+
 
     public static final boolean         DEFAULT_HTTP_PROXY_ENABLE       = false;
     public static final boolean         DEFAULT_AUTO_VALIDATE_TRUST     = false;
@@ -47,6 +51,9 @@ public class ViewerPrefs
     public static final String          DEFAULT_TRUSTSERVICE_URI        = "trust-ws.services.belgium.be/eid-trust-service-ws/xkms2";
     public static final String          DEFAULT_HTTP_PROXY_HOST         = "";
     public static final int             DEFAULT_HTTP_PROXY_PORT         = 8080;
+    
+    public static final String          DEFAULT_LOCALE_LANGUAGE         = "en";
+    public static final String          DEFAULT_LOCALE_COUNTRY          = "US";
     
     private static final String         COLON_SLASH_SLASH               = "://";
     
@@ -145,7 +152,47 @@ public class ViewerPrefs
             return;
         getPrefs().put(LOG_LEVEL, level.toString());
     }
-}
+    
+    public static void setLocale(Locale locale)
+    {
+         if(getPrefs()==null)
+            return;
+        getPrefs().put(LOCALE_LANGUAGE, locale.getLanguage());
+        getPrefs().put(LOCALE_COUNTRY, locale.getCountry());
+    }
 
-//trust.ta.belgium.be
+    public static Locale getLocale()
+    {
+        Preferences prefs=getPrefs();
+        if(prefs==null)
+            return getDefaultLocale();
+
+        String language=prefs.get(LOCALE_LANGUAGE,DEFAULT_LOCALE_LANGUAGE);
+        String country=prefs.get(LOCALE_COUNTRY,DEFAULT_LOCALE_COUNTRY);
+
+        if(language==null || country==null)
+            return getDefaultLocale();
+
+        if(isLocaleSupported(language, country))
+            return new Locale(language,country);
+        else
+            return Locale.US;
+    }
+
+    private static boolean isLocaleSupported(String language, String country)
+    {
+        String localeStr=language + "_" + country;
+        return (localeStr.equals("en_US") || localeStr.equals("nl_BE") || localeStr.equals("fr_BE") || localeStr.equals("de_BE"));
+    }
+
+    private static Locale getDefaultLocale()
+    {
+        String language=System.getProperty("user.language");
+        String country=System.getProperty("user.country");
+        if(isLocaleSupported(language, country))
+            return new Locale(language,country);
+        else
+            return Locale.US;
+    }
+}
 
