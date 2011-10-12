@@ -52,6 +52,7 @@ import java.util.logging.Logger;
 import javax.swing.ActionMap;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -221,6 +222,8 @@ public class BelgianEidViewer extends javax.swing.JFrame implements View, Observ
         jMenuItem1 = new JMenuItem();
         jSeparator1 = new Separator();
         fileMenuQuitItem = new JMenuItem();
+        jMenu1 = new JMenu();
+        jMenuItem5 = new JMenuItem();
 
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setBackground(new Color(255, 255, 255));
@@ -301,6 +304,17 @@ public class BelgianEidViewer extends javax.swing.JFrame implements View, Observ
 
         menuBar.add(fileMenu);
 
+        jMenu1.setAction(actionMap.get("about")); // NOI18N
+        jMenu1.setText(bundle.getString("helpMenuTitle")); // NOI18N
+        jMenu1.setName("jMenu1"); // NOI18N
+
+        jMenuItem5.setAction(actionMap.get("about")); // NOI18N
+        jMenuItem5.setText(bundle.getString("about.Action.text")); // NOI18N
+        jMenuItem5.setName("jMenuItem5"); // NOI18N
+        jMenu1.add(jMenuItem5);
+
+        menuBar.add(jMenu1);
+
         setJMenuBar(menuBar);
 
         pack();
@@ -311,10 +325,12 @@ public class BelgianEidViewer extends javax.swing.JFrame implements View, Observ
     // Variables declaration - do not modify//GEN-BEGIN:variables
     JMenu fileMenu;
     JMenuItem fileMenuQuitItem;
+    JMenu jMenu1;
     JMenuItem jMenuItem1;
     JMenuItem jMenuItem2;
     JMenuItem jMenuItem3;
     JMenuItem jMenuItem4;
+    JMenuItem jMenuItem5;
     Separator jSeparator1;
     Separator jSeparator2;
     Separator jSeparator3;
@@ -333,12 +349,10 @@ public class BelgianEidViewer extends javax.swing.JFrame implements View, Observ
         cardPanel = new CardPanel();
         certificatesPanel = new CertificatesPanel();
         preferencesPanel = new PreferencesPanel();
-        aboutPanel = new AboutPanel();
         tabPanel.add(identityPanel, bundle.getString("IDENTITY"));
         tabPanel.add(cardPanel, bundle.getString("CARD"));
         tabPanel.add(certificatesPanel, bundle.getString("CERTIFICATES"));
         tabPanel.add(preferencesPanel, bundle.getString("PREFERENCES"));
-        tabPanel.add(aboutPanel, bundle.getString("ABOUT"));
 
         if(ViewerPrefs.getShowLogTab())
             showLog(true);
@@ -377,6 +391,17 @@ public class BelgianEidViewer extends javax.swing.JFrame implements View, Observ
         activityTexts.put(EidController.ACTIVITY.VALIDATING_ADDRESS, bundle.getString(EidController.ACTIVITY.VALIDATING_ADDRESS.toString()));
     }
 
+    @Action
+    public void about()
+    {
+        final JDialog dlg = new JDialog(this, bundle.getString("about.Action.text"), true);
+        dlg.getContentPane().setLayout(new BorderLayout());
+        dlg.getContentPane().add(BorderLayout.CENTER, new AboutPanel().setDialog(dlg));      
+        dlg.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        dlg.setLocationRelativeTo(this);    
+        dlg.setSize(800,512);
+        dlg.setVisible(true);
+    }
    
 
     @Action

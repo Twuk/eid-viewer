@@ -19,6 +19,8 @@
 package be.fedict.eidviewer.gui;
 
 import java.util.ResourceBundle;
+import javax.swing.JDialog;
+import org.jdesktop.application.Action;
 
 /**
  *
@@ -26,7 +28,7 @@ import java.util.ResourceBundle;
  */
 public class AboutPanel extends javax.swing.JPanel
 {
-    private ResourceBundle bundle;
+    private JDialog          dialog;
     
     /** Creates new form AboutPanel */
     public AboutPanel()
@@ -47,19 +49,36 @@ public class AboutPanel extends javax.swing.JPanel
     private void initComponents() {
         java.awt.GridBagConstraints gridBagConstraints;
 
-        jLabel1 = new javax.swing.JLabel();
+        jPanel3 = new javax.swing.JPanel();
+        okButton = new javax.swing.JButton();
+        jPanel2 = new javax.swing.JPanel();
+        jLabel2 = new javax.swing.JLabel();
         aboutCopyrightText = new javax.swing.JLabel();
-        jLabel3 = new javax.swing.JLabel();
+        jLabel4 = new javax.swing.JLabel();
 
-        setBorder(new javax.swing.border.LineBorder(new java.awt.Color(204, 255, 204), 24, true));
-        setLayout(new java.awt.GridBagLayout());
+        setLayout(new java.awt.BorderLayout());
 
-        jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/be/fedict/eidviewer/gui/resources/icons/state_eidpresent.png"))); // NOI18N
-        jLabel1.setName("jLabel1"); // NOI18N
+        jPanel3.setBorder(javax.swing.BorderFactory.createEmptyBorder(16, 16, 16, 16));
+        jPanel3.setName("jPanel3"); // NOI18N
+
+        javax.swing.ActionMap actionMap = org.jdesktop.application.Application.getInstance().getContext().getActionMap(AboutPanel.class, this);
+        okButton.setAction(actionMap.get("close")); // NOI18N
+        okButton.setText("OK");
+        okButton.setName("okButton"); // NOI18N
+        jPanel3.add(okButton);
+
+        add(jPanel3, java.awt.BorderLayout.PAGE_END);
+
+        jPanel2.setBorder(javax.swing.BorderFactory.createEmptyBorder(24, 24, 24, 24));
+        jPanel2.setName("jPanel2"); // NOI18N
+        jPanel2.setLayout(new java.awt.GridBagLayout());
+
+        jLabel2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/be/fedict/eidviewer/gui/resources/icons/state_eidpresent.png"))); // NOI18N
+        jLabel2.setName("jLabel2"); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
-        add(jLabel1, gridBagConstraints);
+        jPanel2.add(jLabel2, gridBagConstraints);
 
         aboutCopyrightText.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
         aboutCopyrightText.setText("Copyright (C) 2010 - 2011 Fedict");
@@ -73,23 +92,41 @@ public class AboutPanel extends javax.swing.JPanel
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
-        add(aboutCopyrightText, gridBagConstraints);
+        jPanel2.add(aboutCopyrightText, gridBagConstraints);
 
-        jLabel3.setMaximumSize(new java.awt.Dimension(16, 16));
-        jLabel3.setMinimumSize(new java.awt.Dimension(16, 16));
-        jLabel3.setName("jLabel3"); // NOI18N
-        jLabel3.setPreferredSize(new java.awt.Dimension(16, 16));
+        jLabel4.setMaximumSize(new java.awt.Dimension(16, 16));
+        jLabel4.setMinimumSize(new java.awt.Dimension(16, 16));
+        jLabel4.setName("jLabel4"); // NOI18N
+        jLabel4.setPreferredSize(new java.awt.Dimension(16, 16));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 0;
-        add(jLabel3, gridBagConstraints);
+        jPanel2.add(jLabel4, gridBagConstraints);
+
+        add(jPanel2, java.awt.BorderLayout.CENTER);
     }// </editor-fold>//GEN-END:initComponents
+
+    @Action
+    public void close()
+    {
+        if(dialog!=null)
+            dialog.dispose();
+    }
+    
+    public AboutPanel setDialog(JDialog frame)
+    {
+        this.dialog=frame;
+        return this;
+    }
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel aboutCopyrightText;
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel4;
+    private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel jPanel3;
+    private javax.swing.JButton okButton;
     // End of variables declaration//GEN-END:variables
 
 }
