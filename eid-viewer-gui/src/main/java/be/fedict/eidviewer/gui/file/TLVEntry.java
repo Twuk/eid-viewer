@@ -1,6 +1,6 @@
 /*
  * eID Middleware Project.
- * Copyright (C) 2010 FedICT.
+ * Copyright (C) 2011 FedICT.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -24,6 +24,7 @@ import java.io.InputStream;
 /**
  *
  * @author Frank Marien
+ * copied from eid-applet-core
  */
 public class TLVEntry
 {

@@ -186,7 +186,8 @@ public class TrustServiceController extends Observable implements Runnable
             }
             catch(InterruptedException ex)
             {
-                logger.log(running?Level.SEVERE:Level.INFO, "TrustServiceController Worker Interrupted",ex);
+                if(running==true)
+                    logger.log(running?Level.SEVERE:Level.INFO, "TrustServiceController Worker Interrupted",ex);
                 running=false;
             }
         }

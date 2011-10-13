@@ -25,6 +25,7 @@ import be.fedict.eid.applet.service.impl.tlv.DataConvertorException;
 import be.fedict.eid.applet.service.impl.tlv.DateOfBirthDataConvertor;
 import be.fedict.eidviewer.gui.EidData;
 import be.fedict.eidviewer.gui.X509CertificateChainAndTrust;
+import be.fedict.eidviewer.gui.helper.MiddleNamesHelper;
 import be.fedict.trust.client.TrustServiceDomains;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
@@ -192,35 +193,8 @@ public class Version35CSVFile
             break;
 
             case FIRSTNAMES:
-            String[] nameParts=token.split(" ");
-            switch(nameParts.length)
-            {
-                case 1:
-                logger.finest("First Name: One Token -> firstname, no middleName");
-                identity.firstName=nameParts[0];
-                break;
-
-                case 2:
-                logger.finest("First Name: Two Tokens -> one in firstName, second in middleName");
-                identity.firstName=nameParts[0];
-                identity.middleName=nameParts[1];
-                break;
-
-                default:
-                {
-                    logger.finest("First Name: More Than Two Tokens -> all but last part in firstname, last part in middleName");
-                    StringBuilder firstName=new StringBuilder();
-                    for(int i=0;i<=nameParts.length-2;i++)
-                    {
-                        firstName.append(nameParts[i]);
-                        firstName.append(' ');
-                    }
-                    
-                    identity.firstName=firstName.toString().trim();
-                    identity.middleName=nameParts[nameParts.length-1];
-                }
-                break;
-            }
+                MiddleNamesHelper.setFirstNamesFromString(identity, token);
+            break;
 
             case LASTNAME:
             identity.name=token;
