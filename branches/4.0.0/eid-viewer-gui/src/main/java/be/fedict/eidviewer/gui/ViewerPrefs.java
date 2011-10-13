@@ -19,6 +19,7 @@
 package be.fedict.eidviewer.gui;
 
 import java.util.Locale;
+import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.prefs.Preferences;
 
@@ -193,6 +194,12 @@ public class ViewerPrefs
             return new Locale(language,country);
         else
             return Locale.US;
+    }
+    
+    public static String getFullVersion()
+    {
+        ResourceBundle bundle=ResourceBundle.getBundle("be/fedict/eidviewer/gui/resources/Version");
+        return "eID Viewer " + bundle.getString("version");
     }
 }
 

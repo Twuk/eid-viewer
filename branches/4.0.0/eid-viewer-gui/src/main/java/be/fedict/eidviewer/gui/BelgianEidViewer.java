@@ -395,13 +395,13 @@ public class BelgianEidViewer extends javax.swing.JFrame implements View, Observ
     @Action
     public void about()
     {
-        final JDialog dlg = new JDialog(this, bundle.getString("about.Action.text"), true);
-        dlg.getContentPane().setLayout(new BorderLayout());
-        dlg.getContentPane().add(BorderLayout.CENTER, new AboutPanel().setDialog(dlg));      
-        dlg.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-        dlg.setLocationRelativeTo(this);    
-        dlg.setSize(800,512);
-        dlg.setVisible(true);
+        final JDialog dialog = new JDialog(this, bundle.getString("about.Action.text"), true);
+        dialog.getContentPane().setLayout(new BorderLayout());
+        dialog.getContentPane().add(BorderLayout.CENTER, new AboutPanel().setDialog(dialog));      
+        dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        dialog.setLocationRelativeTo(null);    
+        dialog.setSize(800,512);
+        dialog.setVisible(true);
     }
    
 

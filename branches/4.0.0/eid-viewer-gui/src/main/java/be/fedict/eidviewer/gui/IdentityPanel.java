@@ -166,7 +166,7 @@ public class IdentityPanel extends javax.swing.JPanel implements Observer
                     nationality.setEnabled(true);
                     nationalityLabel.setEnabled(true);
 
-                    nationalNumber.setText(identity.getNationalNumber());
+                    nationalNumber.setText(IdFormatHelper.formatNationalNumber(identity.getNationalNumber()));
                     nationalNumber.setEnabled(true);
                     nationalNumberLabel.setEnabled(true);
 

@@ -35,8 +35,7 @@ public class AboutPanel extends javax.swing.JPanel
     {
         initComponents();
         String aboutHTML=ResourceBundle.getBundle("be/fedict/eidviewer/gui/resources/AboutPanel").getString("about_html");
-        String version=ResourceBundle.getBundle("be/fedict/eidviewer/gui/resources/Version").getString("version");
-        aboutCopyrightText.setText(aboutHTML.replace("__VERSION__", version));
+        aboutCopyrightText.setText(aboutHTML.replace("__FULLVERSION__", ViewerPrefs.getFullVersion()));
     }
 
     /** This method is called from within the constructor to

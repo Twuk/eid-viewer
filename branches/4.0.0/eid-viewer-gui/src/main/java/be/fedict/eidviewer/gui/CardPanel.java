@@ -103,7 +103,7 @@ public class CardPanel extends javax.swing.JPanel implements Observer
                 cardInfoBusyIcon.setVisible(loading);
                 if (identity != null)
                 {
-                    cardNumber.setText(identity.getCardNumber());
+                    cardNumber.setText(IdFormatHelper.formatCardNumber(identity.getCardNumber()));
                     cardNumber.setEnabled(true);
                     cardNumberLabel.setEnabled(true);
 
