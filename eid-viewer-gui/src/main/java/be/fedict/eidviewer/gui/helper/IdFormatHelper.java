@@ -53,6 +53,39 @@ public class IdFormatHelper
         return IdFormatHelper.join(specials, ",");
     }
     
+    // format a national number into YY.MM.DD-S&G.CS
+    public static String formatNationalNumber(String nationalNumber)
+    {
+        //YY MM DD S&G CS
+        //01 23 45 678 9A
+        
+        StringBuilder formatted=new StringBuilder(nationalNumber.substring(0,2));
+                      formatted.append('.');
+                      formatted.append(nationalNumber.substring(2,4));
+                      formatted.append('.');
+                      formatted.append(nationalNumber.substring(4,6));
+                      formatted.append('-');
+                      formatted.append(nationalNumber.substring(6,9));
+                      formatted.append('.');
+                      formatted.append(nationalNumber.substring(9));
+        return formatted.toString();
+    }
+    
+    // format a card number into XXX-YYYYYYYY-ZZ
+    public static String formatCardNumber(String cardNumber)
+    {
+        //XXX-XXXXXXX-XX
+        //012 3456789 AB
+        
+        StringBuilder formatted=new StringBuilder(cardNumber.substring(0,3));
+                      formatted.append('-');
+                      formatted.append(cardNumber.substring(3,10));
+                      formatted.append('-');
+                      formatted.append(cardNumber.substring(10));
+                     
+        return formatted.toString();
+    }
+    
     // join a la python etc..
     public static String join(Collection s, String delimiter)
     {

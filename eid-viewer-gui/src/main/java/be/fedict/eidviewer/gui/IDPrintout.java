@@ -49,7 +49,7 @@ public class IDPrintout implements Printable,ImageObserver
     private static final Logger             logger=Logger.getLogger(CertificatesPanel.class.getName());
     
     private static final int                MINIMAL_FONT_SIZE = 6;
-    private static final int                MAXIMAL_FONT_SIZE = 48;
+    private static final int                MAXIMAL_FONT_SIZE = 24;
     private static final int                TITLE_MAXIMAL_FONT_SIZE = 32;
     private static final String             ICONS = "resources/icons/";
     private static final float              SPACE_BETWEEN_ITEMS = 16;
@@ -240,17 +240,17 @@ public class IDPrintout implements Printable,ImageObserver
         ArrayList<IdentityAttribute> idAttributes = new ArrayList();
 
         addIdAttribute(idAttributes, "nameLabel",           identity.getName());
-        addIdAttribute(idAttributes, "givenNamesLabel",     identity.getFirstName() + " " + identity.getMiddleName());
+        addIdAttribute(idAttributes, "givenNamesLabel",     identity.getFirstName() + (identity.getMiddleName()==null?"":" " + identity.getMiddleName()));
         addIdAttribute(idAttributes, "placeOfBirthLabel",   identity.getPlaceOfBirth());
         addIdAttribute(idAttributes, "dateOfBirthLabel",    dateFormat.format(identity.getDateOfBirth().getTime()));
         addIdAttribute(idAttributes, "sexLabel",            IdFormatHelper.getGenderString(bundle,identity.getGender()));
         addIdAttribute(idAttributes, "nationalityLabel",    identity.getNationality());
-        addIdAttribute(idAttributes, "nationalNumberLabel", identity.getNationalNumber());
+        addIdAttribute(idAttributes, "nationalNumberLabel", IdFormatHelper.formatNationalNumber(identity.getNationalNumber()));
 
         idAttributes.add(SEPARATOR);
 
         String nobleCondition = identity.getNobleCondition();
-        addIdAttribute(idAttributes, "titleLabel",          (nobleCondition==null || nobleCondition.isEmpty())?IdFormatHelper.UNKNOWN_VALUE_TEXT:nobleCondition, (!nobleCondition.isEmpty()));
+        addIdAttribute(idAttributes, "titleLabel",          (nobleCondition==null || nobleCondition.isEmpty())?IdFormatHelper.UNKNOWN_VALUE_TEXT:nobleCondition, (!(nobleCondition==null || nobleCondition.isEmpty())));
         String specialStatusStr = IdFormatHelper.getSpecialStatusString(bundle,identity.getSpecialStatus());
         addIdAttribute(idAttributes, "specialStatusLabel",  specialStatusStr.isEmpty()?IdFormatHelper.UNKNOWN_VALUE_TEXT:specialStatusStr, (!specialStatusStr.isEmpty()));
        
@@ -262,7 +262,7 @@ public class IDPrintout implements Printable,ImageObserver
 
         idAttributes.add(SEPARATOR);
 
-        addIdAttribute(idAttributes, "cardNumberLabel",     identity.getCardNumber());
+        addIdAttribute(idAttributes, "cardNumberLabel",     IdFormatHelper.formatCardNumber(identity.getCardNumber()));
         addIdAttribute(idAttributes, "placeOfIssueLabel",   identity.getCardDeliveryMunicipality());
         addIdAttribute(idAttributes, "validFromLabel",      dateFormat.format(identity.getCardValidityDateBegin().getTime()));
         addIdAttribute(idAttributes, "validUntilLabel",     dateFormat.format(identity.getCardValidityDateEnd().getTime()));
@@ -270,6 +270,7 @@ public class IDPrintout implements Printable,ImageObserver
         idAttributes.add(SEPARATOR);
 
         addIdAttribute(idAttributes, "printedDateLabel",    dateFormat.format(new Date()));
+        addIdAttribute(idAttributes, "printedBy",           ViewerPrefs.getFullVersion());
         
         return idAttributes;
     }

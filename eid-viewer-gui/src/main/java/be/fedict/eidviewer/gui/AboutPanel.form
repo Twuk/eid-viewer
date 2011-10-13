@@ -38,7 +38,6 @@
             <Property name="action" type="javax.swing.Action" editor="org.netbeans.modules.swingapp.ActionEditor">
               <action class="be.fedict.eidviewer.gui.AboutPanel" id="close" methodName="close"/>
             </Property>
-            <Property name="text" type="java.lang.String" value="OK"/>
             <Property name="name" type="java.lang.String" value="okButton" noResource="true"/>
           </Properties>
         </Component>
@@ -79,7 +78,7 @@
         </Component>
         <Component class="javax.swing.JLabel" name="aboutCopyrightText">
           <Properties>
-            <Property name="font" type="java.awt.Font" noResource="true" editor="org.netbeans.beaninfo.editors.FontEditor">
+            <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
               <Font name="Dialog" size="10" style="1"/>
             </Property>
             <Property name="text" type="java.lang.String" value="Copyright (C) 2010 - 2011 Fedict"/>
