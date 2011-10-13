@@ -18,10 +18,16 @@
 package be.fedict.eidviewer.gui.file;
 
 import be.fedict.eid.applet.service.Address;
+import be.fedict.eid.applet.service.DocumentType;
+import be.fedict.eid.applet.service.Gender;
 import be.fedict.eid.applet.service.Identity;
-import be.fedict.eid.applet.service.impl.tlv.TlvParser;
+import be.fedict.eid.applet.service.SpecialStatus;
+import be.fedict.eid.applet.service.impl.tlv.DataConvertorException;
+import be.fedict.eid.applet.service.impl.tlv.DateOfBirthDataConvertor;
 import be.fedict.eidviewer.gui.EidData;
 import be.fedict.eidviewer.gui.X509CertificateChainAndTrust;
+import be.fedict.eidviewer.gui.helper.MiddleNamesHelper;
+import be.fedict.eidviewer.gui.helper.X509Utilities;
 import be.fedict.trust.client.TrustServiceDomains;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
@@ -33,8 +39,14 @@ import java.io.InputStreamReader;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.GregorianCalendar;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.codec.binary.Base64;
@@ -52,18 +64,17 @@ import org.xml.sax.helpers.XMLReaderFactory;
 public class Version35XMLFile extends DefaultHandler
 {
     private static final Logger logger=Logger.getLogger(Version35XMLFile.class.getName());
+    private static final String[] discreteValueLabels=new String[] {"card_type","type","name","surname","gender","date_of_birth","location_of_birth","nobility",
+                                                                    "nationality","national_nr","special_status","logical_nr","chip_nr","date_begin","date_end",
+                                                                    "issuing_municipality","street","zip","municipality","country","duplicata"};
     
     public static enum STAGE
     {
-        NONE        ("none"),
-        AUTHCERT    ("authenticationCertificate"),
-        SIGNCERT    ("nonRepudiationCertificate"),
-        CACERT      ("caCertificate"),
-        ROOTCERT    ("rootCaCertificate"),
-        RRNCERT     ("rrnCertificate"),
-        IDFILE      ("identityFile"),
-        ADDRFILE    ("addressFile"),
-        PHOTOFILE   ("photofile");
+        NONE                ("none"),
+        BIOGRAPHIC          ("biographic"),
+        BIOMETRIC           ("biometric"),
+        BIOMETRIC_PICTURE   ("picture"),
+        CRYPTOGRAPHIC       ("cryptographic");
         
         private final String state;
 
@@ -84,6 +95,9 @@ public class Version35XMLFile extends DefaultHandler
         }
     };
     
+    
+    private Map<String,String>  discreteValues;
+    private byte[]              pictureData;
     private StringBuilder       accumulatedCData;
     private CertificateFactory  certificateFactory = null;
     private X509Certificate     rootCert = null;
@@ -91,10 +105,11 @@ public class Version35XMLFile extends DefaultHandler
     private X509Certificate     authenticationCert = null;
     private X509Certificate     signingCert = null;
     private X509Certificate     rrnCert = null;
-    private STAGE               stage;
     private EidData             eidData;
+    private STAGE               stage;
+    private String              certLabel;
 
-    public static void load(File file, EidData eidData) throws CertificateException, IOException, FileNotFoundException, SAXException
+    public static void load(File file, EidData eidData) throws CertificateException, IOException, FileNotFoundException, SAXException, ParseException, DataConvertorException
     {
         Version35XMLFile v35XMLFile=new Version35XMLFile(eidData);
                          v35XMLFile.load(file);
@@ -103,15 +118,19 @@ public class Version35XMLFile extends DefaultHandler
     public Version35XMLFile(EidData eidData)
     {
         this.eidData=eidData;
+        this.discreteValues=new HashMap<String,String>();
+        for(int i=0;i<discreteValueLabels.length;i++)
+            discreteValues.put(discreteValueLabels[i], null);
     }
 
-    public void load(File file) throws CertificateException, FileNotFoundException, SAXException, IOException
+    public void load(File file) throws CertificateException, FileNotFoundException, SAXException, IOException, ParseException, DataConvertorException
     {
-        logger.fine("Loading Version 35X CSV File");
+        logger.fine("Loading Version 35X XML File");
         
         XMLReader reader = null;
 
         certificateFactory = CertificateFactory.getInstance("X.509");
+        DateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy");
         FileInputStream fis = new FileInputStream(file);
 
         reader = XMLReaderFactory.createXMLReader();
@@ -120,38 +139,38 @@ public class Version35XMLFile extends DefaultHandler
         BufferedReader in = new BufferedReader(new InputStreamReader(fis));
         reader.parse(new InputSource(in));
 
-        if(rootCert != null && citizenCert != null)
-        {
-            logger.fine("Certificates were gathered");
-            
-            if (authenticationCert != null)
-            {
-                logger.fine("Setting Authentication Certificate Chain");
-                List authChain = new LinkedList<X509Certificate>();
-                authChain.add(authenticationCert);
-                authChain.add(citizenCert);
-                authChain.add(rootCert);
-                eidData.setAuthCertChain(new X509CertificateChainAndTrust(TrustServiceDomains.BELGIAN_EID_AUTH_TRUST_DOMAIN, authChain));
-            }
-
-            if (signingCert != null)
-            {
-                logger.fine("Setting Signing Certificate Chain");
-                List signChain = new LinkedList<X509Certificate>();
-                signChain.add(signingCert);
-                signChain.add(citizenCert);
-                signChain.add(rootCert);
-                eidData.setSignCertChain(new X509CertificateChainAndTrust(TrustServiceDomains.BELGIAN_EID_NON_REPUDIATION_TRUST_DOMAIN, signChain));
-            }
-
-            if (rrnCert != null)
-            {
-                List rrnChain = new LinkedList<X509Certificate>();
-                rrnChain.add(rrnCert);
-                rrnChain.add(rootCert);
-                eidData.setRRNCertChain(new X509CertificateChainAndTrust(TrustServiceDomains.BELGIAN_EID_NATIONAL_REGISTRY_TRUST_DOMAIN, rrnChain));
-            }
-        }
+        Identity identity=new Identity();
+                 identity.cardDeliveryMunicipality=discreteValues.get("issuing_municipality");
+                 identity.cardNumber=discreteValues.get("logical_nr");
+                 GregorianCalendar  validityStartCalendar=new GregorianCalendar();
+                                    validityStartCalendar.setTime(dateFormat.parse(discreteValues.get("date_begin")));
+                 identity.cardValidityDateBegin=validityStartCalendar;
+                 GregorianCalendar  validityEndCalendar=new GregorianCalendar();
+                                    validityEndCalendar.setTime(dateFormat.parse(discreteValues.get("date_end")));
+                 identity.cardValidityDateEnd=validityEndCalendar;
+                 identity.chipNumber=discreteValues.get("chip_nr");
+                 identity.dateOfBirth=(new DateOfBirthDataConvertor()).convert(discreteValues.get("date_of_birth").getBytes());
+                 identity.documentType=DocumentType.toDocumentType(discreteValues.get("type").getBytes());
+                 identity.duplicate=discreteValues.get("duplicata");
+                 identity.gender=discreteValues.get("gender").equals("M")?Gender.MALE:Gender.FEMALE;
+                 MiddleNamesHelper.setFirstNamesFromString(identity, discreteValues.get("name"));
+                 identity.name=discreteValues.get("surname");
+                 identity.nationalNumber=discreteValues.get("national_nr");
+                 identity.nationality=discreteValues.get("nationality");
+                 identity.nobleCondition=discreteValues.get("nobility");
+                 identity.placeOfBirth=discreteValues.get("location_of_birth");
+                 identity.specialStatus=SpecialStatus.toSpecialStatus(discreteValues.get("specialStatus"));
+                 eidData.setIdentity(identity);
+                 
+         Address address=new Address();
+                 address.municipality=discreteValues.get("municipality");
+                 address.zip=discreteValues.get("zip");
+                 address.streetAndNumber=discreteValues.get("street");
+                 eidData.setAddress(address);
+                 
+                 eidData.setPhoto(pictureData);
+                 
+        X509Utilities.setCertificateChainsFromCertificates(eidData,rootCert, citizenCert, authenticationCert, signingCert, rrnCert);
     }
 
     @Override
@@ -171,151 +190,73 @@ public class Version35XMLFile extends DefaultHandler
     {
         logger.log(Level.FINEST, "</{0}>", localName);
 
-        if (localName.equalsIgnoreCase("fileData"))
+        if(stage==STAGE.BIOGRAPHIC)
         {
-            byte[] data=Base64.decodeBase64(getCDATA().trim());
-            logger.finest("Base64 Data Decoded");
-            
-            switch (stage)
+            String data=getCDATA().trim();
+            if(discreteValues.containsKey(localName))
+                discreteValues.put(localName, data);
+            resetCDATA();
+        }
+        else if(stage==STAGE.BIOMETRIC_PICTURE)
+        {
+            String data=getCDATA().trim();
+            if(localName.equalsIgnoreCase("data"))
+                pictureData=Base64.decodeBase64(data);
+            resetCDATA();
+        } 
+        else if(stage==STAGE.CRYPTOGRAPHIC)
+        {
+            if(localName.equalsIgnoreCase("label"))
             {
-                case IDFILE:
-                    logger.fine("Setting Identity");
-                    eidData.setIdentity(TlvParser.parse(data, Identity.class));
-                    break;
-
-                case ADDRFILE:
-                    logger.fine("Setting Address");
-                    eidData.setAddress(TlvParser.parse(data, Address.class));
-                    break;
-
-                case PHOTOFILE:
-                    logger.fine("Setting Photo");
-                    eidData.setPhoto(data);
-                    break;
-
-                case AUTHCERT:
-                    logger.finer("Gathering Authentication Certificate");
-                    try
-                    {
-                        authenticationCert  = (X509Certificate) certificateFactory.generateCertificate(new ByteArrayInputStream(data));
-                    }
-                    catch (CertificateException ex)
-                    {
-                        logger.log(Level.SEVERE, "Failed to Convert Authentication Certificate", ex);
-                    }
-                    break;
-
-                case SIGNCERT:
-                    logger.finer("Gathering Signing Certificate");
-                    try
-                    {
-                        signingCert  = (X509Certificate) certificateFactory.generateCertificate(new ByteArrayInputStream(data));
-                    }
-                    catch (CertificateException ex)
-                    {
-                        logger.log(Level.SEVERE, "Failed to Convert Signing Certificate", ex);
-                    }
-                    break;
-
-                case CACERT:
-                    logger.finer("Gathering Citizen CA Certificate");
-                    try
-                    {
-                        citizenCert  = (X509Certificate) certificateFactory.generateCertificate(new ByteArrayInputStream(data));
-                    }
-                    catch (CertificateException ex)
-                    {
-                        logger.log(Level.SEVERE, "Failed to Convert Citizen CA Certificate", ex);
-                    }
-                    break;
-
-                case ROOTCERT:
-                    logger.finer("Gathering Root Certificate");
-                    try
-                    {
-                        rootCert = (X509Certificate) certificateFactory.generateCertificate(new ByteArrayInputStream(data));
-                    }
-                    catch (CertificateException ex)
-                    {
-                        logger.log(Level.SEVERE, "Failed to Convert Belgian Root Certificate", ex);
-                    }
-                    break;
-
-                case RRNCERT:
-                    logger.finer("Gathering RRN Certificate");
-                    try
-                    {
-                        rrnCert = (X509Certificate) certificateFactory.generateCertificate(new ByteArrayInputStream(data));
-                    }
-                    catch (CertificateException ex)
-                    {
-                        logger.log(Level.SEVERE, "Failed to Convert RRN Certificate", ex);
-                    }
-                    break;
-
+                certLabel=getCDATA().trim();
             }
-        }
-        else
-        {
-            stage = STAGE.NONE;
-        }
-
-        resetCDATA();
+            else if(localName.equalsIgnoreCase("data"))
+            {
+                if(certLabel.equals("RRN"))
+                {
+                    rrnCert=certificateFromBase64Data(getCDATA(),certLabel);
+                }
+                else if(certLabel.equals("Authentication"))
+                {
+                    authenticationCert=certificateFromBase64Data(getCDATA(),certLabel);
+                }
+                else if(certLabel.equals("Signature"))
+                {
+                    signingCert=certificateFromBase64Data(getCDATA(),certLabel);
+                }
+                else if(certLabel.equals("CA"))
+                {
+                   citizenCert=certificateFromBase64Data(getCDATA(),certLabel);
+                }
+                else if(certLabel.equals("Root"))
+                {
+                    rootCert=certificateFromBase64Data(getCDATA(),certLabel);
+                }
+            }
+            resetCDATA();
+        } 
     }
+
 
     @Override
     public void startDocument() throws SAXException
     {
         logger.finest("XML Document Starts");
         resetCDATA();
-        stage = STAGE.NONE;
     }
 
     @Override
     public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException
     {
         logger.log(Level.FINEST, "<{0}>", localName);
-
-        if (localName.equalsIgnoreCase(STAGE.IDFILE.getState()))
-        {
-            stage = STAGE.IDFILE;
-            logger.finest("Expecting Identity File Data");
-        }
-        else if (localName.equalsIgnoreCase(STAGE.ADDRFILE.getState()))
-        {
-            stage = STAGE.ADDRFILE;
-            logger.finest("Expecting Address File Data");
-        }
-        else if (localName.equalsIgnoreCase(STAGE.PHOTOFILE.getState()))
-        {
-            stage = STAGE.PHOTOFILE;
-            logger.finest("Expecting JPEG Photo Data");
-        }
-        else if (localName.equalsIgnoreCase(STAGE.AUTHCERT.getState()))
-        {
-            stage = STAGE.AUTHCERT;
-            logger.finest("Expecting Authentication Certificate");
-        }
-        else if (localName.equalsIgnoreCase(STAGE.SIGNCERT.getState()))
-        {
-            stage = STAGE.SIGNCERT;
-            logger.finest("Expecting Signing Certificate");
-        }
-        else if (localName.equalsIgnoreCase(STAGE.CACERT.getState()))
-        {
-            stage = STAGE.CACERT;
-            logger.finest("Expecting Citizen CA Certificate");
-        }
-        else if (localName.equalsIgnoreCase(STAGE.ROOTCERT.getState()))
-        {
-            stage = STAGE.ROOTCERT;
-            logger.finest("Expecting Belgian root Certificate");
-        }
-        else if (localName.equalsIgnoreCase(STAGE.RRNCERT.getState()))
-        {
-            stage = STAGE.RRNCERT;
-            logger.finest("Expecting RRN Certificate");
-        }
+        if(localName.equalsIgnoreCase(STAGE.BIOGRAPHIC.getState()))
+            stage=STAGE.BIOGRAPHIC;
+        else if(localName.equalsIgnoreCase(STAGE.BIOMETRIC.getState()))
+            stage=STAGE.BIOMETRIC;
+        else if(localName.equalsIgnoreCase(STAGE.BIOMETRIC_PICTURE.getState()))
+            stage=STAGE.BIOMETRIC_PICTURE;
+        else if(localName.equalsIgnoreCase(STAGE.CRYPTOGRAPHIC.getState()))
+            stage=STAGE.CRYPTOGRAPHIC;
     }
 
     private void resetCDATA()
@@ -323,8 +264,23 @@ public class Version35XMLFile extends DefaultHandler
         accumulatedCData = new StringBuilder(16);
     }
 
-    public String getCDATA()
+    private String getCDATA()
     {
         return accumulatedCData.toString();
+    }
+    
+    
+    private X509Certificate certificateFromBase64Data(String cdata, String label)
+    {
+        logger.log(Level.FINER, "Gathering {0} Certificate", label);
+        try
+        {
+            return (X509Certificate) certificateFactory.generateCertificate(new ByteArrayInputStream(Base64.decodeBase64(cdata.trim())));
+        }
+        catch (CertificateException ex)
+        {
+            logger.log(Level.SEVERE, "Failed to Convert " + label + " Certificate", ex);
+            return null;
+        }
     }
 }

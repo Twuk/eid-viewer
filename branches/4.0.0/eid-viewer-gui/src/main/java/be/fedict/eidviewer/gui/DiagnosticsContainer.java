@@ -24,5 +24,4 @@ package be.fedict.eidviewer.gui;
 public interface DiagnosticsContainer
 {
     public void showLog(boolean show);
-    public void showDiagnostics(boolean show);
 }

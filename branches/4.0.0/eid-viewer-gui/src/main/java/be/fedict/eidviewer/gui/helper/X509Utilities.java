@@ -18,14 +18,20 @@
 
 package be.fedict.eidviewer.gui.helper;
 
+import be.fedict.eidviewer.gui.EidData;
+import be.fedict.eidviewer.gui.X509CertificateChainAndTrust;
+import be.fedict.trust.client.TrustServiceDomains;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.logging.Logger;
 
 
 public class X509Utilities
 {
+    private static final Logger logger=Logger.getLogger(X509Utilities.class.getName());
     private static final int            CONSTRAINT_DIGITALSIGNATURE=0;
     private static final List<String>   keyUsageStringNames;
 
@@ -77,5 +83,40 @@ public class X509Utilities
     public static boolean keyHasDigitalSignatureConstraint(X509Certificate certificate)
     {
         return certificate.getKeyUsage()[CONSTRAINT_DIGITALSIGNATURE];
+    }
+    
+    public static void setCertificateChainsFromCertificates(EidData eidData, X509Certificate rootCert, X509Certificate citizenCert, X509Certificate authenticationCert, X509Certificate signingCert, X509Certificate rrnCert)
+    {
+        if(rootCert != null && citizenCert != null)
+        {
+            if (authenticationCert != null)
+            {
+                logger.fine("Setting Authentication Certificate Chain");
+                List authChain = new LinkedList<X509Certificate>();
+                authChain.add(authenticationCert);
+                authChain.add(citizenCert);
+                authChain.add(rootCert);
+                eidData.setAuthCertChain(new X509CertificateChainAndTrust(TrustServiceDomains.BELGIAN_EID_AUTH_TRUST_DOMAIN, authChain));
+            }
+
+            if (signingCert != null)
+            {
+                logger.fine("Setting Signing Certificate Chain");
+                List signChain = new LinkedList<X509Certificate>();
+                signChain.add(signingCert);
+                signChain.add(citizenCert);
+                signChain.add(rootCert);
+                eidData.setSignCertChain(new X509CertificateChainAndTrust(TrustServiceDomains.BELGIAN_EID_NON_REPUDIATION_TRUST_DOMAIN, signChain));
+            }
+
+            if (rrnCert != null)
+            {
+                logger.fine("Setting RRN Certificate Chain");
+                List rrnChain = new LinkedList<X509Certificate>();
+                rrnChain.add(rrnCert);
+                rrnChain.add(rootCert);
+                eidData.setRRNCertChain(new X509CertificateChainAndTrust(TrustServiceDomains.BELGIAN_EID_NATIONAL_REGISTRY_TRUST_DOMAIN, rrnChain));
+            }
+        }
     }
 }

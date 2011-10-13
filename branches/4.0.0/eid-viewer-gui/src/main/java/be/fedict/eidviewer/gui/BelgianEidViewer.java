@@ -161,6 +161,7 @@ public class BelgianEidViewer extends javax.swing.JFrame implements View, Observ
     {
         logger.fine("stopping..");
         eidController.stop();
+        trustServiceController.stop();
         this.dispose();
     }
 
@@ -462,8 +463,8 @@ public class BelgianEidViewer extends javax.swing.JFrame implements View, Observ
 
         fileChooser.addChoosableFileFilter(new EidFileFilter(true, true, true,  bundle.getString("allEIDFiles")));
         fileChooser.addChoosableFileFilter(new EidFileFilter(true, false,false, bundle.getString("xmlEIDFiles")));
-        fileChooser.addChoosableFileFilter(new EidFileFilter(false,true, false, bundle.getString("csvEIDFiles")));
-        fileChooser.addChoosableFileFilter(new EidFileFilter(false,false,true,  bundle.getString("tlvEIDFiles")));
+        fileChooser.addChoosableFileFilter(new EidFileFilter(false,false, true, bundle.getString("csvEIDFiles")));
+        fileChooser.addChoosableFileFilter(new EidFileFilter(false,true,false,  bundle.getString("tlvEIDFiles")));
 
         fileChooser.setFileView(new EidFileView(bundle));
 
@@ -515,7 +516,7 @@ public class BelgianEidViewer extends javax.swing.JFrame implements View, Observ
     {
         // this app's only purpose being to read eID cards.. asking "are you sure" is merely annoying to the user
         // and gives no extra security whatsoever
-        // (the privacyQuestion was designed for Applets, where it makes a *lot* of sense)
+        // (the privacyQuestion was designed for Applets and Middleware, where it makes a *lot* of sense)
         return true;
     }
 
@@ -584,10 +585,5 @@ public class BelgianEidViewer extends javax.swing.JFrame implements View, Observ
                 logPanel=null;
             }
         }
-    }
-
-    public void showDiagnostics(boolean show)
-    {
-        throw new UnsupportedOperationException("Not supported yet.");
     }
 }

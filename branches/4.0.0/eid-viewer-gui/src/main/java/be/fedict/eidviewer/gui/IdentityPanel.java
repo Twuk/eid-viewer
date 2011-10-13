@@ -146,7 +146,7 @@ public class IdentityPanel extends javax.swing.JPanel implements Observer
                     name.setEnabled(true);
                     nameLabel.setEnabled(true);
 
-                    givenNames.setText(identity.getFirstName() + " " + identity.getMiddleName());
+                    givenNames.setText(identity.getFirstName() + (identity.getMiddleName()==null?"":" " + identity.getMiddleName()));
                     givenNames.setEnabled(true);
                     givenNamesLabel.setEnabled(true);
 

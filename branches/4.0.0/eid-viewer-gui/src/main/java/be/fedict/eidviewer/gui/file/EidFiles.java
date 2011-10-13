@@ -85,12 +85,19 @@ public class EidFiles
             eidData.setSignCertChain(new X509CertificateChainAndTrust(TrustServiceDomains.BELGIAN_EID_NON_REPUDIATION_TRUST_DOMAIN, v4File.toSignChain()));
             eidData.setRRNCertChain(new X509CertificateChainAndTrust(TrustServiceDomains.BELGIAN_EID_NATIONAL_REGISTRY_TRUST_DOMAIN, v4File.toRRNChain()));
             break;
-
+                
             case 3:
             logger.fine("parsing as 3.5.X .XML file");
             Version35XMLFile v35xmlFile = new Version35XMLFile(eidData);
             v35xmlFile.load(file);
             logger.fine("3.5.x XML data loaded ok");
+            break; 
+
+            case -1:
+            logger.fine("parsing as eID Quick Keys Toolset XML file");
+            EidQuickKeyXMLFile eidqkxmlFile = new EidQuickKeyXMLFile(eidData);
+            eidqkxmlFile.load(file);
+            logger.fine("eID Quick Keys Toolset XML data loaded ok");
             break;
         }
     }
@@ -157,10 +164,15 @@ public class EidFiles
                 version = 4;
                 logger.finest("Found Version 4.x XML file");
             }
-            else if (headStr.contains("<BelPicDirectory>"))
+            else if (headStr.contains("<beid_card>"))
             {
                 version = 3;
                 logger.finest("Found Version 3.x.x XML file");
+            }
+            else if (headStr.contains("<BelPicDirectory>"))
+            {
+                version = -1;
+                logger.finest("Found eID Quick Key Toolset XML file");
             }
             return version;
         }
