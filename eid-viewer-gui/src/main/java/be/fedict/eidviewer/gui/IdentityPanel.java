@@ -1,6 +1,6 @@
 /*
  * eID Middleware Project.
- * Copyright (C) 2010 FedICT.
+ * Copyright (C) 2010-2011 FedICT.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -15,6 +15,7 @@
  * License along with this software; if not, see
  * http://www.gnu.org/licenses/.
  */
+
 package be.fedict.eidviewer.gui;
 
 import be.fedict.eid.applet.service.Address;
@@ -26,7 +27,6 @@ import java.awt.Image;
 import java.awt.Toolkit;
 import java.io.IOException;
 import java.text.DateFormat;
-import java.util.GregorianCalendar;
 import java.util.Locale;
 import java.util.Observable;
 import java.util.Observer;

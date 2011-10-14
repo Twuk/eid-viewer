@@ -1,6 +1,6 @@
 /*
  * eID Middleware Project.
- * Copyright (C) 2010 FedICT.
+ * Copyright (C) 2010-2011 FedICT.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -28,7 +28,10 @@ import java.util.List;
 import java.util.ResourceBundle;
 import java.util.logging.Logger;
 
-
+/**
+ *
+ * @author Frank Marien
+ */
 public class X509Utilities
 {
     private static final Logger logger=Logger.getLogger(X509Utilities.class.getName());
