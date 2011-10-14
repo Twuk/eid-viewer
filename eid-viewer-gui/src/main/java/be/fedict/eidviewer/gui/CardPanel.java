@@ -26,15 +26,37 @@ import java.util.Observable;
 import java.util.Observer;
 import java.util.ResourceBundle;
 import java.util.logging.Logger;
+import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 
 /**
  *
  * @author Frank Marien
  */
-public class CardPanel extends javax.swing.JPanel implements Observer
+public class CardPanel extends JPanel implements Observer
 {
     private static final Logger logger = Logger.getLogger(CardPanel.class.getName());
     private ResourceBundle      bundle;
+    
+    private JLabel cardInfoBusyIcon;
+    private JLabel cardNumber;
+    private JLabel cardNumberLabel;
+    private JButton changePinButton;
+    private JLabel chipNumber;
+    private JLabel chipNumberLabel;
+    private JLabel placeOfIssue;
+    private JLabel placeOfIssueLabel;
+    private JLabel spacer;
+    private JLabel spacer1;
+    private JLabel validFrom;
+    private JLabel validFromLabel;
+    private JLabel validUntil;
+    private JLabel validUntilLabel;
+    private JButton verifyPinButton;
+    
     private DateFormat          dateFormat;
     private EidController       eidController;
 
@@ -153,23 +175,23 @@ public class CardPanel extends javax.swing.JPanel implements Observer
 	{
         java.awt.GridBagConstraints gridBagConstraints;
 
-        cardNumberLabel = new javax.swing.JLabel();
-        placeOfIssueLabel = new javax.swing.JLabel();
-        chipNumberLabel = new javax.swing.JLabel();
-        validFromLabel = new javax.swing.JLabel();
-        cardNumber = new javax.swing.JLabel();
-        placeOfIssue = new javax.swing.JLabel();
-        chipNumber = new javax.swing.JLabel();
-        validUntil = new javax.swing.JLabel();
-        cardInfoBusyIcon = new javax.swing.JLabel();
-        spacer = new javax.swing.JLabel();
-        validUntilLabel = new javax.swing.JLabel();
-        validFrom = new javax.swing.JLabel();
-        spacer1 = new javax.swing.JLabel();
-        changePinButton = new javax.swing.JButton();
-        verifyPinButton = new javax.swing.JButton();
+        cardNumberLabel = new JLabel();
+        placeOfIssueLabel = new JLabel();
+        chipNumberLabel = new JLabel();
+        validFromLabel = new JLabel();
+        cardNumber = new JLabel();
+        placeOfIssue = new JLabel();
+        chipNumber = new JLabel();
+        validUntil = new JLabel();
+        cardInfoBusyIcon = new JLabel();
+        spacer = new JLabel();
+        validUntilLabel = new JLabel();
+        validFrom = new JLabel();
+        spacer1 = new JLabel();
+        changePinButton = new JButton();
+        verifyPinButton = new JButton();
 
-        setBorder(new javax.swing.border.LineBorder(new java.awt.Color(204, 255, 204), 24, true));
+        setBorder(IdFormatHelper.getEIDBorder());
         setLayout(new java.awt.GridBagLayout());
 
         cardNumberLabel.setText(bundle.getString("cardNumberLabel")); // NOI18N
@@ -248,7 +270,7 @@ public class CardPanel extends javax.swing.JPanel implements Observer
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         add(validUntil, gridBagConstraints);
 
-        cardInfoBusyIcon.setIcon(new javax.swing.ImageIcon(getClass().getResource("/be/fedict/eidviewer/gui/resources/busyicons/busy_anim_small.gif"))); // NOI18N
+        cardInfoBusyIcon.setIcon(new ImageIcon(getClass().getResource("/be/fedict/eidviewer/gui/resources/busyicons/busy_anim_small.gif"))); // NOI18N
         cardInfoBusyIcon.setName("cardInfoBusyIcon"); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
@@ -340,19 +362,5 @@ public class CardPanel extends javax.swing.JPanel implements Observer
         eidController.verifyPin();
     }
 
-    private javax.swing.JLabel cardInfoBusyIcon;
-    private javax.swing.JLabel cardNumber;
-    private javax.swing.JLabel cardNumberLabel;
-    private javax.swing.JButton changePinButton;
-    private javax.swing.JLabel chipNumber;
-    private javax.swing.JLabel chipNumberLabel;
-    private javax.swing.JLabel placeOfIssue;
-    private javax.swing.JLabel placeOfIssueLabel;
-    private javax.swing.JLabel spacer;
-    private javax.swing.JLabel spacer1;
-    private javax.swing.JLabel validFrom;
-    private javax.swing.JLabel validFromLabel;
-    private javax.swing.JLabel validUntil;
-    private javax.swing.JLabel validUntilLabel;
-    private javax.swing.JButton verifyPinButton;
+
 }

@@ -27,6 +27,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.logging.Logger;
+import javax.swing.BorderFactory;
+import javax.swing.border.Border;
 
 /**
  *
@@ -126,6 +128,11 @@ public class IdFormatHelper
         }
         
         return nameParts.length;
+    }
+    
+    public static Border getEIDBorder()
+    {
+        return BorderFactory.createLineBorder(new java.awt.Color(204, 255, 204), 24);
     }
     
     // join a la python etc..

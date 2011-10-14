@@ -19,6 +19,7 @@
 package be.fedict.eidviewer.gui;
 
 import be.fedict.eidviewer.gui.helper.ComparableLocale;
+import be.fedict.eidviewer.gui.helper.IdFormatHelper;
 import be.fedict.eidviewer.gui.helper.PositiveIntegerDocument;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -30,7 +31,14 @@ import java.util.Locale;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.ResourceBundle;
+import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
@@ -38,9 +46,29 @@ import javax.swing.event.DocumentListener;
  *
  * @author Frank Marien
  */
-public class PreferencesPanel extends javax.swing.JPanel implements Observer, ComponentListener
+public class PreferencesPanel extends JPanel implements Observer, ComponentListener
 {
     private ResourceBundle          bundle;
+    
+    private JButton applyProxyButton;
+    private JPanel diagnosticsPrefsPanel;
+    private JTextField httpProxyHost;
+    private JTextField httpProxyPort;
+    private JLabel httpProxyPortLabel;
+    private JPanel jPanel1;
+    private JPanel jPanel2;
+    private JComboBox languageCombo;
+    private JLabel languageLabel;
+    private JPanel languageLabelAndComboPanel;
+    private JLabel languageLabelAndComboSeparator;
+    private JLabel languageSettingsTakeEffectNotice;
+    private JPanel proxyPrefsPanel;
+    private JCheckBox showLogCheckbox;
+    private JLabel spacer;
+    private JLabel spacer1;
+    private JCheckBox useProxyCheckbox;
+    
+    
     private TrustServiceController  trustServiceController;
     private EidController           eidController;
     private DiagnosticsContainer    diagnosticsContainer;
@@ -173,25 +201,25 @@ public class PreferencesPanel extends javax.swing.JPanel implements Observer, Co
 	{
         java.awt.GridBagConstraints gridBagConstraints;
 
-        jPanel1 = new javax.swing.JPanel();
-        jPanel2 = new javax.swing.JPanel();
-        languageLabelAndComboSeparator = new javax.swing.JLabel();
-        languageLabelAndComboPanel = new javax.swing.JPanel();
-        languageLabel = new javax.swing.JLabel();
-        languageCombo = new javax.swing.JComboBox();
-        languageSettingsTakeEffectNotice = new javax.swing.JLabel();
-        proxyPrefsPanel = new javax.swing.JPanel();
-        httpProxyPortLabel = new javax.swing.JLabel();
-        useProxyCheckbox = new javax.swing.JCheckBox();
-        httpProxyHost = new javax.swing.JTextField();
-        applyProxyButton = new javax.swing.JButton();
-        spacer = new javax.swing.JLabel();
-        httpProxyPort = new javax.swing.JTextField();
-        diagnosticsPrefsPanel = new javax.swing.JPanel();
-        showLogCheckbox = new javax.swing.JCheckBox();
-        spacer1 = new javax.swing.JLabel();
+        jPanel1 = new JPanel();
+        jPanel2 = new JPanel();
+        languageLabelAndComboSeparator = new JLabel();
+        languageLabelAndComboPanel = new JPanel();
+        languageLabel = new JLabel();
+        languageCombo = new JComboBox();
+        languageSettingsTakeEffectNotice = new JLabel();
+        proxyPrefsPanel = new JPanel();
+        httpProxyPortLabel = new JLabel();
+        useProxyCheckbox = new JCheckBox();
+        httpProxyHost = new JTextField();
+        applyProxyButton = new JButton();
+        spacer = new JLabel();
+        httpProxyPort = new JTextField();
+        diagnosticsPrefsPanel = new JPanel();
+        showLogCheckbox = new JCheckBox();
+        spacer1 = new JLabel();
 
-        setBorder(new javax.swing.border.LineBorder(new java.awt.Color(204, 255, 204), 24, true));
+        setBorder(IdFormatHelper.getEIDBorder());
         setLayout(new java.awt.BorderLayout());
 
         jPanel1.setName("jPanel1"); // NOI18N
@@ -233,7 +261,7 @@ public class PreferencesPanel extends javax.swing.JPanel implements Observer, Co
 
         jPanel1.add(jPanel2);
 
-        proxyPrefsPanel.setBorder(javax.swing.BorderFactory.createCompoundBorder(javax.swing.BorderFactory.createEtchedBorder(), javax.swing.BorderFactory.createEmptyBorder(16, 16, 16, 16)));
+        proxyPrefsPanel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createEtchedBorder(), BorderFactory.createEmptyBorder(16, 16, 16, 16)));
         proxyPrefsPanel.setName("proxyPrefsPanel"); // NOI18N
         proxyPrefsPanel.setLayout(new java.awt.GridBagLayout());
 
@@ -292,7 +320,7 @@ public class PreferencesPanel extends javax.swing.JPanel implements Observer, Co
 
         jPanel1.add(proxyPrefsPanel);
 
-        diagnosticsPrefsPanel.setBorder(javax.swing.BorderFactory.createCompoundBorder(javax.swing.BorderFactory.createEtchedBorder(), javax.swing.BorderFactory.createEmptyBorder(16, 16, 16, 16)));
+        diagnosticsPrefsPanel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createEtchedBorder(), BorderFactory.createEmptyBorder(16, 16, 16, 16)));
         diagnosticsPrefsPanel.setName("diagnosticsPrefsPanel"); // NOI18N
         diagnosticsPrefsPanel.setLayout(new java.awt.GridBagLayout());
 
@@ -319,23 +347,7 @@ public class PreferencesPanel extends javax.swing.JPanel implements Observer, Co
         add(jPanel1, java.awt.BorderLayout.CENTER);
     }
 
-    private javax.swing.JButton applyProxyButton;
-    private javax.swing.JPanel diagnosticsPrefsPanel;
-    private javax.swing.JTextField httpProxyHost;
-    private javax.swing.JTextField httpProxyPort;
-    private javax.swing.JLabel httpProxyPortLabel;
-    private javax.swing.JPanel jPanel1;
-    private javax.swing.JPanel jPanel2;
-    private javax.swing.JComboBox languageCombo;
-    private javax.swing.JLabel languageLabel;
-    private javax.swing.JPanel languageLabelAndComboPanel;
-    private javax.swing.JLabel languageLabelAndComboSeparator;
-    private javax.swing.JLabel languageSettingsTakeEffectNotice;
-    private javax.swing.JPanel proxyPrefsPanel;
-    private javax.swing.JCheckBox showLogCheckbox;
-    private javax.swing.JLabel spacer;
-    private javax.swing.JLabel spacer1;
-    private javax.swing.JCheckBox useProxyCheckbox;
+
 
     public void update(Observable o, Object o1)
     {

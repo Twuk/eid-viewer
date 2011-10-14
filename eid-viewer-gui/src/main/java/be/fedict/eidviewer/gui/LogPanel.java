@@ -19,6 +19,7 @@
 package be.fedict.eidviewer.gui;
 
 import be.fedict.eidviewer.gui.LogPanel.ATTR;
+import be.fedict.eidviewer.gui.helper.IdFormatHelper;
 import java.awt.Color;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
@@ -31,8 +32,14 @@ import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
+import javax.swing.BorderFactory;
 import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextPane;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
@@ -43,9 +50,16 @@ import javax.swing.text.StyleConstants;
  *
  * @author Frank Marien
  */
-public class LogPanel extends javax.swing.JPanel
+public class LogPanel extends JPanel
 {
-    private static final Logger                     viewerLogger = Logger.getLogger("be.fedict");
+    private static final Logger viewerLogger = Logger.getLogger("be.fedict");
+    
+    private JPanel bottomPanel;
+    private JButton clearButton;
+    private JScrollPane jScrollPane1;
+    private JComboBox levelCombo;
+    private JTextPane logTextPanel;
+
     private Document                                logDocument;
     private Map<Level, EnumMap<ATTR,AttributeSet>>  attributes;
     private ComboBoxModel                           levelComboModel;
@@ -279,20 +293,20 @@ public class LogPanel extends javax.swing.JPanel
 
     private void initComponents()
 	{
-        bottomPanel = new javax.swing.JPanel();
-        levelCombo = new javax.swing.JComboBox();
-        clearButton = new javax.swing.JButton();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        logTextPanel = new javax.swing.JTextPane();
+        bottomPanel = new JPanel();
+        levelCombo = new JComboBox();
+        clearButton = new JButton();
+        jScrollPane1 = new JScrollPane();
+        logTextPanel = new JTextPane();
 
-        setBorder(new javax.swing.border.LineBorder(new java.awt.Color(204, 255, 204), 24, true));
+        setBorder(IdFormatHelper.getEIDBorder());
         setLayout(new java.awt.BorderLayout());
 
         bottomPanel.setName("bottomPanel"); // NOI18N
         bottomPanel.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.CENTER, 32, 5));
 
         levelCombo.setMaximumRowCount(4);
-        levelCombo.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Errors Only", "Errors,Warnings", "Errors,Warnings and Info", "Everything" }));
+        levelCombo.setModel(new DefaultComboBoxModel(new String[] { "Errors Only", "Errors,Warnings", "Errors,Warnings and Info", "Everything" }));
         levelCombo.setName("levelCombo"); // NOI18N
         bottomPanel.add(levelCombo);
 
@@ -310,11 +324,7 @@ public class LogPanel extends javax.swing.JPanel
         add(jScrollPane1, java.awt.BorderLayout.CENTER);
     }
 
-    private javax.swing.JPanel bottomPanel;
-    private javax.swing.JButton clearButton;
-    private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JComboBox levelCombo;
-    private javax.swing.JTextPane logTextPanel;
+
 
     public static enum ATTR
     {

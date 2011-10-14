@@ -18,16 +18,29 @@
 
 package be.fedict.eidviewer.gui;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ResourceBundle;
+import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JDialog;
-import org.jdesktop.application.Action;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 
 /**
  *
  * @author Frank Marien
  */
-public class AboutPanel extends javax.swing.JPanel
+public class AboutPanel extends JPanel
 {
+    private JLabel aboutCopyrightText;
+    private JLabel jLabel2;
+    private JLabel jLabel4;
+    private JPanel jPanel2;
+    private JPanel jPanel3;
+    private JButton okButton;
+    
     private JDialog dialog;
     
     /** Creates new form AboutPanel */
@@ -42,31 +55,38 @@ public class AboutPanel extends javax.swing.JPanel
 	{
         java.awt.GridBagConstraints gridBagConstraints;
 
-        jPanel3 = new javax.swing.JPanel();
-        okButton = new javax.swing.JButton();
-        jPanel2 = new javax.swing.JPanel();
-        jLabel2 = new javax.swing.JLabel();
-        aboutCopyrightText = new javax.swing.JLabel();
-        jLabel4 = new javax.swing.JLabel();
+        jPanel3 = new JPanel();
+        okButton = new JButton();
+        jPanel2 = new JPanel();
+        jLabel2 = new JLabel();
+        aboutCopyrightText = new JLabel();
+        jLabel4 = new JLabel();
 
         setLayout(new java.awt.BorderLayout());
 
-        jPanel3.setBorder(javax.swing.BorderFactory.createEmptyBorder(16, 16, 16, 16));
+        jPanel3.setBorder(BorderFactory.createEmptyBorder(16, 16, 16, 16));
         jPanel3.setName("jPanel3"); // NOI18N
 
-        javax.swing.ActionMap actionMap = org.jdesktop.application.Application.getInstance().getContext().getActionMap(AboutPanel.class, this);
-        okButton.setAction(actionMap.get("close")); // NOI18N
         okButton.setText("OK");
         okButton.setName("okButton"); // NOI18N
+        okButton.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent ae)
+            {
+                if(dialog!=null)
+                    dialog.dispose();
+            }
+        });
+        
         jPanel3.add(okButton);
 
         add(jPanel3, java.awt.BorderLayout.PAGE_END);
 
-        jPanel2.setBorder(javax.swing.BorderFactory.createEmptyBorder(24, 24, 24, 24));
+        jPanel2.setBorder(BorderFactory.createEmptyBorder(24, 24, 24, 24));
         jPanel2.setName("jPanel2"); // NOI18N
         jPanel2.setLayout(new java.awt.GridBagLayout());
 
-        jLabel2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/be/fedict/eidviewer/gui/resources/icons/state_eidpresent.png"))); // NOI18N
+        jLabel2.setIcon(new ImageIcon(getClass().getResource("/be/fedict/eidviewer/gui/resources/icons/state_eidpresent.png"))); // NOI18N
         jLabel2.setName("jLabel2"); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.weightx = 1.0;
@@ -98,26 +118,10 @@ public class AboutPanel extends javax.swing.JPanel
 
         add(jPanel2, java.awt.BorderLayout.CENTER);
     }
-
-    @Action
-    public void close()
-    {
-        if(dialog!=null)
-            dialog.dispose();
-    }
     
     public AboutPanel setDialog(JDialog frame)
     {
         this.dialog=frame;
         return this;
     }
-
-
-    private javax.swing.JLabel aboutCopyrightText;
-    private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel4;
-    private javax.swing.JPanel jPanel2;
-    private javax.swing.JPanel jPanel3;
-    private javax.swing.JButton okButton;
-
 }
