@@ -1,6 +1,6 @@
 /*
  * eID Middleware Project.
- * Copyright (C) 2010 FedICT.
+ * Copyright (C) 2010-2011 FedICT.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -15,6 +15,7 @@
  * License along with this software; if not, see
  * http://www.gnu.org/licenses/.
  */
+
 package be.fedict.eidviewer.gui.helper;
 
 import be.fedict.eidviewer.gui.file.EidFiles;

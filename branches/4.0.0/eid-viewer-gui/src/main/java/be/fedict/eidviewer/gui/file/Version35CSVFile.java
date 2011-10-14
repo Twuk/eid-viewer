@@ -1,6 +1,6 @@
 /*
  * eID Middleware Project.
- * Copyright (C) 2010 FedICT.
+ * Copyright (C) 2010-2011 FedICT.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -15,6 +15,7 @@
  * License along with this software; if not, see
  * http://www.gnu.org/licenses/.
  */
+
 package be.fedict.eidviewer.gui.file;
 
 import be.fedict.eid.applet.service.Address;
@@ -25,7 +26,7 @@ import be.fedict.eid.applet.service.impl.tlv.DataConvertorException;
 import be.fedict.eid.applet.service.impl.tlv.DateOfBirthDataConvertor;
 import be.fedict.eidviewer.gui.EidData;
 import be.fedict.eidviewer.gui.X509CertificateChainAndTrust;
-import be.fedict.eidviewer.gui.helper.MiddleNamesHelper;
+import be.fedict.eidviewer.gui.helper.IdFormatHelper;
 import be.fedict.trust.client.TrustServiceDomains;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
@@ -193,7 +194,7 @@ public class Version35CSVFile
             break;
 
             case FIRSTNAMES:
-                MiddleNamesHelper.setFirstNamesFromString(identity, token);
+                IdFormatHelper.setFirstNamesFromString(identity, token);
             break;
 
             case LASTNAME:
