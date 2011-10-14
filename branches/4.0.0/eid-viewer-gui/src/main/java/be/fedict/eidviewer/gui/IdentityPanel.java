@@ -33,16 +33,56 @@ import java.util.Observer;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JSeparator;
+import javax.swing.SwingConstants;
 
 /**
  *
  * @author Frank Marien
  */
-public class IdentityPanel extends javax.swing.JPanel implements Observer
+public class IdentityPanel extends JPanel implements Observer
 {
     private static final Logger logger = Logger.getLogger(IdentityPanel.class.getName());
     private ResourceBundle      bundle;
+    
+    private JLabel addressBusyIcon;
+    private JLabel addressTrustedIcon;
+    private JLabel dateOfBirth;
+    private JLabel dateOfBirthLabel;
+    private JLabel givenNames;
+    private JLabel givenNamesLabel;
+    private JSeparator idAddressSeparator;
+    private JSeparator idAddressSeparator1;
+    private JLabel identityBusyIcon;
+    private JLabel identityTrustedIcon;
+    private JLabel municipality;
+    private JLabel municipalityLabel;
+    private JLabel name;
+    private JLabel nameLabel;
+    private JLabel nationalNumber;
+    private JLabel nationalNumberLabel;
+    private JLabel nationality;
+    private JLabel nationalityLabel;
+    private JLabel photo;
+    private JLabel placeOfBirth;
+    private JLabel placeOfBirthLabel;
+    private JLabel postalCode;
+    private JLabel postalCodeLabel;
+    private JLabel sex;
+    private JLabel sexLabel;
+    private JLabel spacer1;
+    private JLabel specialStatus;
+    private JLabel specialStatusLabel;
+    private JLabel street;
+    private JLabel streetLabel;
+    private JLabel title;
+    private JLabel titleLabel;
+    private JLabel type;
+    
     private DateFormat          dateFormat;
     private ImageIcon           largeBusyIcon;
     private EidController       eidController;
@@ -304,45 +344,45 @@ public class IdentityPanel extends javax.swing.JPanel implements Observer
 	{
         java.awt.GridBagConstraints gridBagConstraints;
 
-        photo = new javax.swing.JLabel();
-        type = new javax.swing.JLabel();
-        givenNamesLabel = new javax.swing.JLabel();
-        placeOfBirthLabel = new javax.swing.JLabel();
-        dateOfBirthLabel = new javax.swing.JLabel();
-        nationalityLabel = new javax.swing.JLabel();
-        nationalNumberLabel = new javax.swing.JLabel();
-        sexLabel = new javax.swing.JLabel();
-        titleLabel = new javax.swing.JLabel();
-        specialStatusLabel = new javax.swing.JLabel();
-        streetLabel = new javax.swing.JLabel();
-        postalCodeLabel = new javax.swing.JLabel();
-        municipalityLabel = new javax.swing.JLabel();
-        idAddressSeparator = new javax.swing.JSeparator();
-        name = new javax.swing.JLabel();
-        givenNames = new javax.swing.JLabel();
-        placeOfBirth = new javax.swing.JLabel();
-        dateOfBirth = new javax.swing.JLabel();
-        sex = new javax.swing.JLabel();
-        nationalNumber = new javax.swing.JLabel();
-        nationality = new javax.swing.JLabel();
-        title = new javax.swing.JLabel();
-        specialStatus = new javax.swing.JLabel();
-        street = new javax.swing.JLabel();
-        postalCode = new javax.swing.JLabel();
-        municipality = new javax.swing.JLabel();
-        addressBusyIcon = new javax.swing.JLabel();
-        identityBusyIcon = new javax.swing.JLabel();
-        spacer1 = new javax.swing.JLabel();
-        nameLabel = new javax.swing.JLabel();
-        idAddressSeparator1 = new javax.swing.JSeparator();
-        addressTrustedIcon = new javax.swing.JLabel();
-        identityTrustedIcon = new javax.swing.JLabel();
+        photo = new JLabel();
+        type = new JLabel();
+        givenNamesLabel = new JLabel();
+        placeOfBirthLabel = new JLabel();
+        dateOfBirthLabel = new JLabel();
+        nationalityLabel = new JLabel();
+        nationalNumberLabel = new JLabel();
+        sexLabel = new JLabel();
+        titleLabel = new JLabel();
+        specialStatusLabel = new JLabel();
+        streetLabel = new JLabel();
+        postalCodeLabel = new JLabel();
+        municipalityLabel = new JLabel();
+        idAddressSeparator = new JSeparator();
+        name = new JLabel();
+        givenNames = new JLabel();
+        placeOfBirth = new JLabel();
+        dateOfBirth = new JLabel();
+        sex = new JLabel();
+        nationalNumber = new JLabel();
+        nationality = new JLabel();
+        title = new JLabel();
+        specialStatus = new JLabel();
+        street = new JLabel();
+        postalCode = new JLabel();
+        municipality = new JLabel();
+        addressBusyIcon = new JLabel();
+        identityBusyIcon = new JLabel();
+        spacer1 = new JLabel();
+        nameLabel = new JLabel();
+        idAddressSeparator1 = new JSeparator();
+        addressTrustedIcon = new JLabel();
+        identityTrustedIcon = new JLabel();
 
-        setBorder(new javax.swing.border.LineBorder(new java.awt.Color(204, 255, 204), 24, true));
+        setBorder(IdFormatHelper.getEIDBorder());
         setLayout(new java.awt.GridBagLayout());
 
         photo.setBackground(new java.awt.Color(255, 255, 255));
-        photo.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        photo.setHorizontalAlignment(SwingConstants.CENTER);
         photo.setMaximumSize(new java.awt.Dimension(140, 200));
         photo.setMinimumSize(new java.awt.Dimension(140, 200));
         photo.setName("photo"); // NOI18N
@@ -355,7 +395,7 @@ public class IdentityPanel extends javax.swing.JPanel implements Observer
         gridBagConstraints.insets = new java.awt.Insets(23, 8, 23, 29);
         add(photo, gridBagConstraints);
 
-        type.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        type.setHorizontalAlignment(SwingConstants.CENTER);
         type.setText(bundle.getString("nameLabel")); // NOI18N
         type.setEnabled(false);
         type.setName("type"); // NOI18N
@@ -597,7 +637,7 @@ public class IdentityPanel extends javax.swing.JPanel implements Observer
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         add(municipality, gridBagConstraints);
 
-        addressBusyIcon.setIcon(new javax.swing.ImageIcon(getClass().getResource("/be/fedict/eidviewer/gui/resources/busyicons/busy_anim_small.gif"))); // NOI18N
+        addressBusyIcon.setIcon(new ImageIcon(getClass().getResource("/be/fedict/eidviewer/gui/resources/busyicons/busy_anim_small.gif"))); // NOI18N
         addressBusyIcon.setName("identityBusyIcon"); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 3;
@@ -605,7 +645,7 @@ public class IdentityPanel extends javax.swing.JPanel implements Observer
         gridBagConstraints.insets = new java.awt.Insets(3, 3, 3, 3);
         add(addressBusyIcon, gridBagConstraints);
 
-        identityBusyIcon.setIcon(new javax.swing.ImageIcon(getClass().getResource("/be/fedict/eidviewer/gui/resources/busyicons/busy_anim_small.gif"))); // NOI18N
+        identityBusyIcon.setIcon(new ImageIcon(getClass().getResource("/be/fedict/eidviewer/gui/resources/busyicons/busy_anim_small.gif"))); // NOI18N
         identityBusyIcon.setName("identityBusyIcon"); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 3;
@@ -644,7 +684,7 @@ public class IdentityPanel extends javax.swing.JPanel implements Observer
         gridBagConstraints.insets = new java.awt.Insets(7, 0, 7, 0);
         add(idAddressSeparator1, gridBagConstraints);
 
-        addressTrustedIcon.setIcon(new javax.swing.ImageIcon(getClass().getResource("/be/fedict/eidviewer/gui/resources/icons/warning_small.png"))); // NOI18N
+        addressTrustedIcon.setIcon(new ImageIcon(getClass().getResource("/be/fedict/eidviewer/gui/resources/icons/warning_small.png"))); // NOI18N
         addressTrustedIcon.setName("addressTrustedIcon"); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 5;
@@ -652,7 +692,7 @@ public class IdentityPanel extends javax.swing.JPanel implements Observer
         gridBagConstraints.insets = new java.awt.Insets(3, 3, 3, 3);
         add(addressTrustedIcon, gridBagConstraints);
 
-        identityTrustedIcon.setIcon(new javax.swing.ImageIcon(getClass().getResource("/be/fedict/eidviewer/gui/resources/icons/warning_small.png"))); // NOI18N
+        identityTrustedIcon.setIcon(new ImageIcon(getClass().getResource("/be/fedict/eidviewer/gui/resources/icons/warning_small.png"))); // NOI18N
         identityTrustedIcon.setName("identityTrustedIcon"); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 5;
@@ -661,39 +701,7 @@ public class IdentityPanel extends javax.swing.JPanel implements Observer
         add(identityTrustedIcon, gridBagConstraints);
     }
 
-    private javax.swing.JLabel addressBusyIcon;
-    private javax.swing.JLabel addressTrustedIcon;
-    private javax.swing.JLabel dateOfBirth;
-    private javax.swing.JLabel dateOfBirthLabel;
-    private javax.swing.JLabel givenNames;
-    private javax.swing.JLabel givenNamesLabel;
-    private javax.swing.JSeparator idAddressSeparator;
-    private javax.swing.JSeparator idAddressSeparator1;
-    private javax.swing.JLabel identityBusyIcon;
-    private javax.swing.JLabel identityTrustedIcon;
-    private javax.swing.JLabel municipality;
-    private javax.swing.JLabel municipalityLabel;
-    private javax.swing.JLabel name;
-    private javax.swing.JLabel nameLabel;
-    private javax.swing.JLabel nationalNumber;
-    private javax.swing.JLabel nationalNumberLabel;
-    private javax.swing.JLabel nationality;
-    private javax.swing.JLabel nationalityLabel;
-    private javax.swing.JLabel photo;
-    private javax.swing.JLabel placeOfBirth;
-    private javax.swing.JLabel placeOfBirthLabel;
-    private javax.swing.JLabel postalCode;
-    private javax.swing.JLabel postalCodeLabel;
-    private javax.swing.JLabel sex;
-    private javax.swing.JLabel sexLabel;
-    private javax.swing.JLabel spacer1;
-    private javax.swing.JLabel specialStatus;
-    private javax.swing.JLabel specialStatusLabel;
-    private javax.swing.JLabel street;
-    private javax.swing.JLabel streetLabel;
-    private javax.swing.JLabel title;
-    private javax.swing.JLabel titleLabel;
-    private javax.swing.JLabel type;
+
 
     private void initIcons()
     {

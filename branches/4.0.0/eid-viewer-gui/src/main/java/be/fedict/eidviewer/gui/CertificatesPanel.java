@@ -40,8 +40,17 @@ import java.util.Observable;
 import java.util.Observer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.BorderFactory;
 import javax.swing.Icon;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JSeparator;
+import javax.swing.JSplitPane;
 import javax.swing.JTree;
+import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
@@ -55,11 +64,37 @@ import javax.swing.tree.TreeSelectionModel;
  *
  * @author Frank Marien
  */
-public class CertificatesPanel extends javax.swing.JPanel implements Observer, TreeSelectionListener
+public class CertificatesPanel extends JPanel implements Observer, TreeSelectionListener
 {
     private static final Logger                     logger=Logger.getLogger(CertificatesPanel.class.getName());
     private static final String                     ICONS = "resources/icons/";
     private ResourceBundle                          bundle;
+    
+    private JCheckBox alwaysValidateCheckbox;
+    private JPanel authCertsPanel;
+    private JPanel certDetailsPanel;
+    private JLabel certificateIcon;
+    private JLabel certsBusyIcon;
+    private JSplitPane certsDetailsSplitPane;
+    private JTree certsTree;
+    private JLabel dn;
+    private JLabel keyUsage;
+    private JLabel keyUsageLabel;
+    private JSeparator keyUsageTrustSeparator;
+    private JLabel spacer;
+    private JLabel trustErrors;
+    private JPanel trustPrefspanel;
+    private JSeparator trustServiceTrustErrorsSeparator;
+    private JLabel trustStatus;
+    private JLabel trustStatusLabel;
+    private JLabel validFrom;
+    private JLabel validFromLabel;
+    private JLabel validUntil;
+    private JLabel validUntilLabel;
+    private JButton validateNowButton;
+    private JSeparator validdUntilKeyUsageSeparator;
+    
+    
     private DateFormat                              dateFormat;
     private Map<Principal, DefaultMutableTreeNode>  certificatesInTree;
     private DefaultMutableTreeNode                  rootNode;
@@ -354,48 +389,48 @@ public class CertificatesPanel extends javax.swing.JPanel implements Observer, T
 	{
         java.awt.GridBagConstraints gridBagConstraints;
 
-        certsDetailsSplitPane = new javax.swing.JSplitPane();
-        authCertsPanel = new javax.swing.JPanel();
-        certsTree = new javax.swing.JTree();
-        certsBusyIcon = new javax.swing.JLabel();
-        certDetailsPanel = new javax.swing.JPanel();
-        certificateIcon = new javax.swing.JLabel();
-        dn = new javax.swing.JLabel();
-        validFromLabel = new javax.swing.JLabel();
-        validUntilLabel = new javax.swing.JLabel();
-        validFrom = new javax.swing.JLabel();
-        validUntil = new javax.swing.JLabel();
-        keyUsage = new javax.swing.JLabel();
-        trustStatusLabel = new javax.swing.JLabel();
-        trustStatus = new javax.swing.JLabel();
-        trustErrors = new javax.swing.JLabel();
-        keyUsageLabel = new javax.swing.JLabel();
-        trustServiceTrustErrorsSeparator = new javax.swing.JSeparator();
-        spacer = new javax.swing.JLabel();
-        validdUntilKeyUsageSeparator = new javax.swing.JSeparator();
-        keyUsageTrustSeparator = new javax.swing.JSeparator();
-        trustPrefspanel = new javax.swing.JPanel();
-        alwaysValidateCheckbox = new javax.swing.JCheckBox();
-        validateNowButton = new javax.swing.JButton();
+        certsDetailsSplitPane = new JSplitPane();
+        authCertsPanel = new JPanel();
+        certsTree = new JTree();
+        certsBusyIcon = new JLabel();
+        certDetailsPanel = new JPanel();
+        certificateIcon = new JLabel();
+        dn = new JLabel();
+        validFromLabel = new JLabel();
+        validUntilLabel = new JLabel();
+        validFrom = new JLabel();
+        validUntil = new JLabel();
+        keyUsage = new JLabel();
+        trustStatusLabel = new JLabel();
+        trustStatus = new JLabel();
+        trustErrors = new JLabel();
+        keyUsageLabel = new JLabel();
+        trustServiceTrustErrorsSeparator = new JSeparator();
+        spacer = new JLabel();
+        validdUntilKeyUsageSeparator = new JSeparator();
+        keyUsageTrustSeparator = new JSeparator();
+        trustPrefspanel = new JPanel();
+        alwaysValidateCheckbox = new JCheckBox();
+        validateNowButton = new JButton();
 
-        setBorder(new javax.swing.border.LineBorder(new java.awt.Color(204, 255, 204), 24, true));
+        setBorder(IdFormatHelper.getEIDBorder());
         setLayout(new java.awt.BorderLayout());
 
-        certsDetailsSplitPane.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
+        certsDetailsSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
         certsDetailsSplitPane.setName("certsDetailsSplitPane"); // NOI18N
 
-        authCertsPanel.setBorder(javax.swing.BorderFactory.createEmptyBorder(4, 4, 4, 4));
+        authCertsPanel.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
         authCertsPanel.setMinimumSize(new java.awt.Dimension(24, 124));
         authCertsPanel.setName("authCertsPanel"); // NOI18N
         authCertsPanel.setOpaque(false);
         authCertsPanel.setPreferredSize(new java.awt.Dimension(600, 124));
         authCertsPanel.setLayout(new java.awt.BorderLayout());
 
-        certsTree.setBorder(javax.swing.BorderFactory.createEmptyBorder(8, 8, 8, 8));
+        certsTree.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
         certsTree.setName("certsTree"); // NOI18N
         authCertsPanel.add(certsTree, java.awt.BorderLayout.CENTER);
 
-        certsBusyIcon.setIcon(new javax.swing.ImageIcon(getClass().getResource("/be/fedict/eidviewer/gui/resources/busyicons/busy_anim_small.gif"))); // NOI18N
+        certsBusyIcon.setIcon(new ImageIcon(getClass().getResource("/be/fedict/eidviewer/gui/resources/busyicons/busy_anim_small.gif"))); // NOI18N
         certsBusyIcon.setName("certsBusyIcon"); // NOI18N
         authCertsPanel.add(certsBusyIcon, java.awt.BorderLayout.WEST);
 
@@ -404,7 +439,7 @@ public class CertificatesPanel extends javax.swing.JPanel implements Observer, T
         certDetailsPanel.setName("certDetailsPanel"); // NOI18N
         certDetailsPanel.setLayout(new java.awt.GridBagLayout());
 
-        certificateIcon.setIcon(new javax.swing.ImageIcon(getClass().getResource("/be/fedict/eidviewer/gui/resources/icons/certificate_large.png"))); // NOI18N
+        certificateIcon.setIcon(new ImageIcon(getClass().getResource("/be/fedict/eidviewer/gui/resources/icons/certificate_large.png"))); // NOI18N
         certificateIcon.setName("certificateIcon"); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridheight = 5;
@@ -501,7 +536,7 @@ public class CertificatesPanel extends javax.swing.JPanel implements Observer, T
         certDetailsPanel.add(trustStatus, gridBagConstraints);
 
         trustErrors.setBackground(new java.awt.Color(255, 153, 102));
-        trustErrors.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        trustErrors.setHorizontalAlignment(SwingConstants.CENTER);
         trustErrors.setText("(trusterrors)");
         trustErrors.setName("trustErrors"); // NOI18N
         trustErrors.setOpaque(true);
@@ -581,29 +616,7 @@ public class CertificatesPanel extends javax.swing.JPanel implements Observer, T
         add(trustPrefspanel, java.awt.BorderLayout.PAGE_END);
     }
 
-    private javax.swing.JCheckBox alwaysValidateCheckbox;
-    private javax.swing.JPanel authCertsPanel;
-    private javax.swing.JPanel certDetailsPanel;
-    private javax.swing.JLabel certificateIcon;
-    private javax.swing.JLabel certsBusyIcon;
-    private javax.swing.JSplitPane certsDetailsSplitPane;
-    private javax.swing.JTree certsTree;
-    private javax.swing.JLabel dn;
-    private javax.swing.JLabel keyUsage;
-    private javax.swing.JLabel keyUsageLabel;
-    private javax.swing.JSeparator keyUsageTrustSeparator;
-    private javax.swing.JLabel spacer;
-    private javax.swing.JLabel trustErrors;
-    private javax.swing.JPanel trustPrefspanel;
-    private javax.swing.JSeparator trustServiceTrustErrorsSeparator;
-    private javax.swing.JLabel trustStatus;
-    private javax.swing.JLabel trustStatusLabel;
-    private javax.swing.JLabel validFrom;
-    private javax.swing.JLabel validFromLabel;
-    private javax.swing.JLabel validUntil;
-    private javax.swing.JLabel validUntilLabel;
-    private javax.swing.JButton validateNowButton;
-    private javax.swing.JSeparator validdUntilKeyUsageSeparator;
+
 
     private void initCertsTree()
     {
