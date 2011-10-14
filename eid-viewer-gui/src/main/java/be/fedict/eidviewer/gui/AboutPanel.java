@@ -18,13 +18,9 @@
 
 package be.fedict.eidviewer.gui;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.ResourceBundle;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
@@ -38,25 +34,17 @@ public class AboutPanel extends JPanel
     private JLabel jLabel2;
     private JLabel jLabel4;
     private JPanel jPanel2;
-    private JPanel jPanel3;
-    private JButton okButton;
     
-    private JDialog dialog;
-    
-    /** Creates new form AboutPanel */
     public AboutPanel()
     {
         initComponents();
-        String aboutHTML=ResourceBundle.getBundle("be/fedict/eidviewer/gui/resources/AboutPanel").getString("about_html");
-        aboutCopyrightText.setText(aboutHTML.replace("__FULLVERSION__", ViewerPrefs.getFullVersion()));
+        initI18N();
     }
 
     private void initComponents()
 	{
         java.awt.GridBagConstraints gridBagConstraints;
 
-        jPanel3 = new JPanel();
-        okButton = new JButton();
         jPanel2 = new JPanel();
         jLabel2 = new JLabel();
         aboutCopyrightText = new JLabel();
@@ -64,30 +52,10 @@ public class AboutPanel extends JPanel
 
         setLayout(new java.awt.BorderLayout());
 
-        jPanel3.setBorder(BorderFactory.createEmptyBorder(16, 16, 16, 16));
-        jPanel3.setName("jPanel3"); // NOI18N
-
-        okButton.setText("OK");
-        okButton.setName("okButton"); // NOI18N
-        okButton.addActionListener(new ActionListener()
-        {
-            public void actionPerformed(ActionEvent ae)
-            {
-                if(dialog!=null)
-                    dialog.dispose();
-            }
-        });
-        
-        jPanel3.add(okButton);
-
-        add(jPanel3, java.awt.BorderLayout.PAGE_END);
-
         jPanel2.setBorder(BorderFactory.createEmptyBorder(24, 24, 24, 24));
-        jPanel2.setName("jPanel2"); // NOI18N
         jPanel2.setLayout(new java.awt.GridBagLayout());
 
         jLabel2.setIcon(new ImageIcon(getClass().getResource("/be/fedict/eidviewer/gui/resources/icons/state_eidpresent.png"))); // NOI18N
-        jLabel2.setName("jLabel2"); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
@@ -95,7 +63,6 @@ public class AboutPanel extends JPanel
 
         aboutCopyrightText.setFont(new java.awt.Font("Dialog", 1, 10)); // NOI18N
         aboutCopyrightText.setText("Copyright (C) 2010 - 2011 Fedict");
-        aboutCopyrightText.setName("aboutCopyrightText"); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 0;
@@ -109,7 +76,6 @@ public class AboutPanel extends JPanel
 
         jLabel4.setMaximumSize(new java.awt.Dimension(16, 16));
         jLabel4.setMinimumSize(new java.awt.Dimension(16, 16));
-        jLabel4.setName("jLabel4"); // NOI18N
         jLabel4.setPreferredSize(new java.awt.Dimension(16, 16));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
@@ -119,9 +85,9 @@ public class AboutPanel extends JPanel
         add(jPanel2, java.awt.BorderLayout.CENTER);
     }
     
-    public AboutPanel setDialog(JDialog frame)
+    private void initI18N()
     {
-        this.dialog=frame;
-        return this;
+        String aboutHTML=ResourceBundle.getBundle("be/fedict/eidviewer/gui/resources/AboutPanel").getString("about_html");
+        aboutCopyrightText.setText(aboutHTML.replace("__FULLVERSION__", ViewerPrefs.getFullVersion()));
     }
 }
