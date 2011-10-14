@@ -64,7 +64,7 @@ import javax.swing.tree.TreeSelectionModel;
  *
  * @author Frank Marien
  */
-public class CertificatesPanel extends JPanel implements Observer, TreeSelectionListener
+public class CertificatesPanel extends JPanel implements Observer, TreeSelectionListener, DynamicLocale
 {
     private static final Logger                     logger=Logger.getLogger(CertificatesPanel.class.getName());
     private static final String                     ICONS = "resources/icons/";
@@ -107,6 +107,7 @@ public class CertificatesPanel extends JPanel implements Observer, TreeSelection
         bundle = ResourceBundle.getBundle("be/fedict/eidviewer/gui/resources/CertificatesPanel");
         dateFormat = DateFormat.getDateInstance(DateFormat.LONG, Locale.getDefault());
         initComponents();
+        initI18N();
         trustErrors.setVisible(false);
         defaultLabelForeground = UIManager.getColor("Label.foreground");
         defaultLabelBackground = UIManager.getColor("Label.background");
@@ -417,30 +418,24 @@ public class CertificatesPanel extends JPanel implements Observer, TreeSelection
         setLayout(new java.awt.BorderLayout());
 
         certsDetailsSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
-        certsDetailsSplitPane.setName("certsDetailsSplitPane"); // NOI18N
 
         authCertsPanel.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
         authCertsPanel.setMinimumSize(new java.awt.Dimension(24, 124));
-        authCertsPanel.setName("authCertsPanel"); // NOI18N
         authCertsPanel.setOpaque(false);
         authCertsPanel.setPreferredSize(new java.awt.Dimension(600, 124));
         authCertsPanel.setLayout(new java.awt.BorderLayout());
 
         certsTree.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
-        certsTree.setName("certsTree"); // NOI18N
         authCertsPanel.add(certsTree, java.awt.BorderLayout.CENTER);
 
         certsBusyIcon.setIcon(new ImageIcon(getClass().getResource("/be/fedict/eidviewer/gui/resources/busyicons/busy_anim_small.gif"))); // NOI18N
-        certsBusyIcon.setName("certsBusyIcon"); // NOI18N
         authCertsPanel.add(certsBusyIcon, java.awt.BorderLayout.WEST);
 
         certsDetailsSplitPane.setLeftComponent(authCertsPanel);
 
-        certDetailsPanel.setName("certDetailsPanel"); // NOI18N
         certDetailsPanel.setLayout(new java.awt.GridBagLayout());
 
         certificateIcon.setIcon(new ImageIcon(getClass().getResource("/be/fedict/eidviewer/gui/resources/icons/certificate_large.png"))); // NOI18N
-        certificateIcon.setName("certificateIcon"); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridheight = 5;
         gridBagConstraints.ipadx = 8;
@@ -449,8 +444,6 @@ public class CertificatesPanel extends JPanel implements Observer, TreeSelection
         certDetailsPanel.add(certificateIcon, gridBagConstraints);
 
         dn.setBackground(new java.awt.Color(204, 204, 204));
-        dn.setText("(cn)");
-        dn.setName("dn"); // NOI18N
         dn.setOpaque(true);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridwidth = 3;
@@ -461,8 +454,6 @@ public class CertificatesPanel extends JPanel implements Observer, TreeSelection
         gridBagConstraints.insets = new java.awt.Insets(4, 4, 4, 4);
         certDetailsPanel.add(dn, gridBagConstraints);
 
-        validFromLabel.setText(bundle.getString("validFromLabel")); // NOI18N
-        validFromLabel.setName("validFromLabel"); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 2;
@@ -471,8 +462,6 @@ public class CertificatesPanel extends JPanel implements Observer, TreeSelection
         gridBagConstraints.insets = new java.awt.Insets(0, 4, 0, 0);
         certDetailsPanel.add(validFromLabel, gridBagConstraints);
 
-        validUntilLabel.setText(bundle.getString("validUntilLabel")); // NOI18N
-        validUntilLabel.setName("validUntilLabel"); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 3;
@@ -481,8 +470,6 @@ public class CertificatesPanel extends JPanel implements Observer, TreeSelection
         gridBagConstraints.insets = new java.awt.Insets(0, 4, 0, 0);
         certDetailsPanel.add(validUntilLabel, gridBagConstraints);
 
-        validFrom.setText("-");
-        validFrom.setName("validFrom"); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 3;
         gridBagConstraints.gridy = 2;
@@ -491,8 +478,6 @@ public class CertificatesPanel extends JPanel implements Observer, TreeSelection
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 4);
         certDetailsPanel.add(validFrom, gridBagConstraints);
 
-        validUntil.setText("-");
-        validUntil.setName("validUntil"); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 3;
         gridBagConstraints.gridy = 3;
@@ -501,8 +486,6 @@ public class CertificatesPanel extends JPanel implements Observer, TreeSelection
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 4);
         certDetailsPanel.add(validUntil, gridBagConstraints);
 
-        keyUsage.setText(bundle.getString("keyUsageLabel")); // NOI18N
-        keyUsage.setName("keyUsage"); // NOI18N
         keyUsage.setOpaque(true);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 3;
@@ -512,8 +495,6 @@ public class CertificatesPanel extends JPanel implements Observer, TreeSelection
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 4);
         certDetailsPanel.add(keyUsage, gridBagConstraints);
 
-        trustStatusLabel.setText(bundle.getString("trustStatusLabel")); // NOI18N
-        trustStatusLabel.setName("trustStatusLabel"); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 7;
@@ -522,8 +503,6 @@ public class CertificatesPanel extends JPanel implements Observer, TreeSelection
         gridBagConstraints.insets = new java.awt.Insets(0, 4, 0, 0);
         certDetailsPanel.add(trustStatusLabel, gridBagConstraints);
 
-        trustStatus.setText("-"); // NOI18N
-        trustStatus.setName("trustStatus"); // NOI18N
         trustStatus.setOpaque(true);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 3;
@@ -537,8 +516,6 @@ public class CertificatesPanel extends JPanel implements Observer, TreeSelection
 
         trustErrors.setBackground(new java.awt.Color(255, 153, 102));
         trustErrors.setHorizontalAlignment(SwingConstants.CENTER);
-        trustErrors.setText("(trusterrors)");
-        trustErrors.setName("trustErrors"); // NOI18N
         trustErrors.setOpaque(true);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
@@ -550,8 +527,6 @@ public class CertificatesPanel extends JPanel implements Observer, TreeSelection
         gridBagConstraints.insets = new java.awt.Insets(4, 4, 4, 4);
         certDetailsPanel.add(trustErrors, gridBagConstraints);
 
-        keyUsageLabel.setText(bundle.getString("keyUsageLabel")); // NOI18N
-        keyUsageLabel.setName("keyUsageLabel"); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 5;
@@ -560,7 +535,6 @@ public class CertificatesPanel extends JPanel implements Observer, TreeSelection
         gridBagConstraints.insets = new java.awt.Insets(0, 4, 0, 0);
         certDetailsPanel.add(keyUsageLabel, gridBagConstraints);
 
-        trustServiceTrustErrorsSeparator.setName("trustServiceTrustErrorsSeparator"); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 9;
@@ -572,7 +546,6 @@ public class CertificatesPanel extends JPanel implements Observer, TreeSelection
         spacer.setEnabled(false);
         spacer.setMaximumSize(new java.awt.Dimension(16, 16));
         spacer.setMinimumSize(new java.awt.Dimension(16, 16));
-        spacer.setName("spacer"); // NOI18N
         spacer.setPreferredSize(new java.awt.Dimension(16, 16));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
@@ -580,7 +553,6 @@ public class CertificatesPanel extends JPanel implements Observer, TreeSelection
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         certDetailsPanel.add(spacer, gridBagConstraints);
 
-        validdUntilKeyUsageSeparator.setName("validdUntilKeyUsageSeparator"); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 4;
@@ -589,7 +561,6 @@ public class CertificatesPanel extends JPanel implements Observer, TreeSelection
         gridBagConstraints.insets = new java.awt.Insets(8, 0, 4, 0);
         certDetailsPanel.add(validdUntilKeyUsageSeparator, gridBagConstraints);
 
-        keyUsageTrustSeparator.setName("keyUsageTrustSeparator"); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 6;
@@ -601,21 +572,30 @@ public class CertificatesPanel extends JPanel implements Observer, TreeSelection
         certsDetailsSplitPane.setRightComponent(certDetailsPanel);
 
         add(certsDetailsSplitPane, java.awt.BorderLayout.CENTER);
-
-        trustPrefspanel.setName("trustPrefspanel"); // NOI18N
         trustPrefspanel.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.CENTER, 16, 5));
-
-        alwaysValidateCheckbox.setText(bundle.getString("alwaysValidateCheckbox")); // NOI18N
-        alwaysValidateCheckbox.setName("alwaysValidateCheckbox"); // NOI18N
         trustPrefspanel.add(alwaysValidateCheckbox);
-
-        validateNowButton.setText(bundle.getString("validateNowButton")); // NOI18N
-        validateNowButton.setName("validateNowButton"); // NOI18N
         trustPrefspanel.add(validateNowButton);
-
         add(trustPrefspanel, java.awt.BorderLayout.PAGE_END);
     }
-
+    
+    private void initI18N()
+	{
+        Locale.setDefault(ViewerPrefs.getLocale());
+        bundle = ResourceBundle.getBundle("be/fedict/eidviewer/gui/resources/CertificatesPanel");
+        dateFormat = DateFormat.getDateInstance(DateFormat.LONG, Locale.getDefault());
+        dn.setText("(cn)");
+        validFromLabel.setText(bundle.getString("validFromLabel")); // NOI18N
+        validUntilLabel.setText(bundle.getString("validUntilLabel")); // NOI18N
+        validFrom.setText("-");
+        validUntil.setText("-");
+        keyUsage.setText(bundle.getString("keyUsageLabel")); // NOI18N
+        trustStatusLabel.setText(bundle.getString("trustStatusLabel")); // NOI18N
+        trustStatus.setText("-"); // NOI18N
+        trustErrors.setText("(trusterrors)");
+        keyUsageLabel.setText(bundle.getString("keyUsageLabel")); // NOI18N
+        alwaysValidateCheckbox.setText(bundle.getString("alwaysValidateCheckbox")); // NOI18N
+        validateNowButton.setText(bundle.getString("validateNowButton")); // NOI18N 
+    }
 
 
     private void initCertsTree()
@@ -650,6 +630,12 @@ public class CertificatesPanel extends JPanel implements Observer, TreeSelection
                     eidController.validateTrust();
             }
         });
+    }
+
+    public void setDynamicLocale(Locale locale)
+    {
+        initI18N();
+        updateCertificateDetail();
     }
 
     private class CertAndTrustCellRenderer extends DefaultTreeCellRenderer

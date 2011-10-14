@@ -26,7 +26,6 @@ import java.util.Observable;
 import java.util.Observer;
 import java.util.ResourceBundle;
 import java.util.logging.Logger;
-import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -36,7 +35,7 @@ import javax.swing.JPanel;
  *
  * @author Frank Marien
  */
-public class CardPanel extends JPanel implements Observer
+public class CardPanel extends JPanel implements Observer, DynamicLocale
 {
     private static final Logger logger = Logger.getLogger(CardPanel.class.getName());
     private ResourceBundle      bundle;
@@ -62,9 +61,8 @@ public class CardPanel extends JPanel implements Observer
 
     public CardPanel()
     {
-        bundle = ResourceBundle.getBundle("be/fedict/eidviewer/gui/resources/CardPanel");
-        dateFormat = DateFormat.getDateInstance(DateFormat.DEFAULT, Locale.getDefault());
         initComponents();
+        initI18N();
         fillCardInfo(null,false);
     }
 
@@ -109,7 +107,7 @@ public class CardPanel extends JPanel implements Observer
         {
             public void run()
             {
-                boolean enablePinActions=eidController.isReadyForCommand() && eidController.getState()==EidController.STATE.EID_PRESENT;
+               boolean enablePinActions=eidController.isReadyForCommand() && eidController.getState()==EidController.STATE.EID_PRESENT;
                verifyPinButton.setEnabled(enablePinActions);
                changePinButton.setEnabled(enablePinActions);
             }
@@ -194,9 +192,7 @@ public class CardPanel extends JPanel implements Observer
         setBorder(IdFormatHelper.getEIDBorder());
         setLayout(new java.awt.GridBagLayout());
 
-        cardNumberLabel.setText(bundle.getString("cardNumberLabel")); // NOI18N
         cardNumberLabel.setEnabled(false);
-        cardNumberLabel.setName("cardNumberLabel"); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 0;
@@ -204,9 +200,7 @@ public class CardPanel extends JPanel implements Observer
         gridBagConstraints.insets = new java.awt.Insets(4, 4, 4, 4);
         add(cardNumberLabel, gridBagConstraints);
 
-        placeOfIssueLabel.setText(bundle.getString("placeOfIssueLabel")); // NOI18N
         placeOfIssueLabel.setEnabled(false);
-        placeOfIssueLabel.setName("placeOfIssueLabel"); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 1;
@@ -214,9 +208,7 @@ public class CardPanel extends JPanel implements Observer
         gridBagConstraints.insets = new java.awt.Insets(4, 4, 4, 4);
         add(placeOfIssueLabel, gridBagConstraints);
 
-        chipNumberLabel.setText(bundle.getString("chipNumberLabel")); // NOI18N
         chipNumberLabel.setEnabled(false);
-        chipNumberLabel.setName("chipNumberLabel"); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 2;
@@ -224,9 +216,7 @@ public class CardPanel extends JPanel implements Observer
         gridBagConstraints.insets = new java.awt.Insets(4, 4, 4, 4);
         add(chipNumberLabel, gridBagConstraints);
 
-        validFromLabel.setText(bundle.getString("validFromLabel")); // NOI18N
         validFromLabel.setEnabled(false);
-        validFromLabel.setName("validFromLabel"); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 3;
@@ -235,7 +225,6 @@ public class CardPanel extends JPanel implements Observer
         add(validFromLabel, gridBagConstraints);
 
         cardNumber.setEnabled(false);
-        cardNumber.setName("cardNumber"); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 3;
         gridBagConstraints.gridy = 0;
@@ -244,7 +233,6 @@ public class CardPanel extends JPanel implements Observer
         add(cardNumber, gridBagConstraints);
 
         placeOfIssue.setEnabled(false);
-        placeOfIssue.setName("placeOfIssue"); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 3;
         gridBagConstraints.gridy = 1;
@@ -253,7 +241,6 @@ public class CardPanel extends JPanel implements Observer
         add(placeOfIssue, gridBagConstraints);
 
         chipNumber.setEnabled(false);
-        chipNumber.setName("chipNumber"); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 3;
         gridBagConstraints.gridy = 2;
@@ -262,7 +249,6 @@ public class CardPanel extends JPanel implements Observer
         add(chipNumber, gridBagConstraints);
 
         validUntil.setEnabled(false);
-        validUntil.setName("validUntil"); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 3;
         gridBagConstraints.gridy = 4;
@@ -271,7 +257,6 @@ public class CardPanel extends JPanel implements Observer
         add(validUntil, gridBagConstraints);
 
         cardInfoBusyIcon.setIcon(new ImageIcon(getClass().getResource("/be/fedict/eidviewer/gui/resources/busyicons/busy_anim_small.gif"))); // NOI18N
-        cardInfoBusyIcon.setName("cardInfoBusyIcon"); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 2;
@@ -281,7 +266,6 @@ public class CardPanel extends JPanel implements Observer
         spacer.setEnabled(false);
         spacer.setMaximumSize(new java.awt.Dimension(16, 16));
         spacer.setMinimumSize(new java.awt.Dimension(16, 16));
-        spacer.setName("spacer"); // NOI18N
         spacer.setPreferredSize(new java.awt.Dimension(16, 16));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
@@ -289,9 +273,7 @@ public class CardPanel extends JPanel implements Observer
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         add(spacer, gridBagConstraints);
 
-        validUntilLabel.setText(bundle.getString("validUntilLabel")); // NOI18N
         validUntilLabel.setEnabled(false);
-        validUntilLabel.setName("validUntilLabel"); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 4;
@@ -300,7 +282,6 @@ public class CardPanel extends JPanel implements Observer
         add(validUntilLabel, gridBagConstraints);
 
         validFrom.setEnabled(false);
-        validFrom.setName("validFrom"); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 3;
         gridBagConstraints.gridy = 3;
@@ -311,7 +292,6 @@ public class CardPanel extends JPanel implements Observer
         spacer1.setEnabled(false);
         spacer1.setMaximumSize(new java.awt.Dimension(16, 16));
         spacer1.setMinimumSize(new java.awt.Dimension(16, 16));
-        spacer1.setName("spacer1"); // NOI18N
         spacer1.setPreferredSize(new java.awt.Dimension(16, 16));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
@@ -319,9 +299,7 @@ public class CardPanel extends JPanel implements Observer
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         add(spacer1, gridBagConstraints);
 
-        changePinButton.setText(bundle.getString("changePinButton")); // NOI18N
         changePinButton.setEnabled(false);
-        changePinButton.setName("changePinButton"); // NOI18N
         changePinButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 changePinButtonActionPerformed(evt);
@@ -335,9 +313,7 @@ public class CardPanel extends JPanel implements Observer
         gridBagConstraints.insets = new java.awt.Insets(3, 3, 3, 3);
         add(changePinButton, gridBagConstraints);
 
-        verifyPinButton.setText(bundle.getString("verifyPinButton")); // NOI18N
         verifyPinButton.setEnabled(false);
-        verifyPinButton.setName("verifyPinButton"); // NOI18N
         verifyPinButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 verifyPinButtonActionPerformed(evt);
@@ -351,6 +327,20 @@ public class CardPanel extends JPanel implements Observer
         gridBagConstraints.insets = new java.awt.Insets(3, 3, 3, 3);
         add(verifyPinButton, gridBagConstraints);
     }
+    
+    private void initI18N()
+	{
+        Locale.setDefault(ViewerPrefs.getLocale());
+        bundle = ResourceBundle.getBundle("be/fedict/eidviewer/gui/resources/CardPanel");
+        dateFormat = DateFormat.getDateInstance(DateFormat.DEFAULT, Locale.getDefault());
+        cardNumberLabel.setText(bundle.getString("cardNumberLabel")); // NOI18N
+        placeOfIssueLabel.setText(bundle.getString("placeOfIssueLabel")); // NOI18N
+        chipNumberLabel.setText(bundle.getString("chipNumberLabel")); // NOI18N
+        validFromLabel.setText(bundle.getString("validFromLabel")); // NOI18N
+        validUntilLabel.setText(bundle.getString("validUntilLabel")); // NOI18N
+        changePinButton.setText(bundle.getString("changePinButton")); // NOI18N
+        verifyPinButton.setText(bundle.getString("verifyPinButton")); // NOI18N
+    }
 
     private void changePinButtonActionPerformed(java.awt.event.ActionEvent evt)
     {
@@ -360,6 +350,12 @@ public class CardPanel extends JPanel implements Observer
     private void verifyPinButtonActionPerformed(java.awt.event.ActionEvent evt)
     {
         eidController.verifyPin();
+    }
+
+    public void setDynamicLocale(Locale locale)
+    {
+        initI18N();
+        update(null,null);
     }
 
 

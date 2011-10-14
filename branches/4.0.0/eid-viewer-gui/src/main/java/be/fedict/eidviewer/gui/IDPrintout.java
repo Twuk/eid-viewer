@@ -64,9 +64,7 @@ public class IDPrintout implements Printable,ImageObserver
 
     public IDPrintout()
     {
-        bundle = ResourceBundle.getBundle("be/fedict/eidviewer/gui/resources/IDPrintout");
-        dateFormat = DateFormat.getDateInstance(DateFormat.LONG, Locale.getDefault());
-        coatOfArms = ImageUtilities.getImage(IDPrintout.class, ICONS+bundle.getString("coatOfArms"));
+       initI18N();
     }
 
     public void setIdentity(Identity identity)
@@ -295,6 +293,11 @@ public class IDPrintout implements Printable,ImageObserver
         return true;
     }
 
+    public void setDynamicLocale(Locale locale)
+    {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
     private class IdentityAttribute
     {
         private String label;
@@ -340,5 +343,13 @@ public class IDPrintout implements Printable,ImageObserver
             this.relevant = relevant;
             return this;
         }
+    }
+    
+    private void initI18N()
+	{
+        Locale.setDefault(ViewerPrefs.getLocale());
+        bundle = ResourceBundle.getBundle("be/fedict/eidviewer/gui/resources/IDPrintout");
+        dateFormat = DateFormat.getDateInstance(DateFormat.LONG, Locale.getDefault());
+        coatOfArms = ImageUtilities.getImage(IDPrintout.class, ICONS+bundle.getString("coatOfArms"));
     }
 }

@@ -52,18 +52,17 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.AbstractAction;
-import javax.swing.Action;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JDialog;
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JPopupMenu.Separator;
 import javax.swing.JTabbedPane;
 import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
@@ -74,22 +73,33 @@ import javax.swing.WindowConstants;
  *
  * @author Frank Marien
  */
-public class BelgianEidViewer extends javax.swing.JFrame implements View, Observer, DiagnosticsContainer
+public class BelgianEidViewer extends javax.swing.JFrame implements View, Observer, DiagnosticsContainer, DynamicLocale
 {
-
     private static final Logger logger = Logger.getLogger(BelgianEidViewer.class.getName());
     private ResourceBundle bundle;
     private static final String EXTENSION_PNG = ".png";
     private static final String ICONS = "resources/icons/";
+    
+    private JMenuBar menuBar;
+    
     private JMenu fileMenu;
-    private JMenuItem fileMenuQuitItem;
-    private JMenu helpMenu;
     private JMenuItem printMenuItem;
     private JMenuItem openMenuItem;
     private JMenuItem saveMenuItem;
     private JMenuItem closeMenuItem;
+    private JMenuItem preferencesMenuItem;
+    private JMenuItem fileMenuQuitItem;
+    
+    private JMenu helpMenu;
     private JMenuItem aboutMenuItem;
-    private JMenuBar menuBar;
+    private JCheckBoxMenuItem showLogMenuItem;
+    
+    private JMenu languageMenu;
+    private JMenuItem languageGermanMenuItem;   // Deutsch
+    private JMenuItem languageEnglishMenuItem;  // English
+    private JMenuItem languageFrenchMenuItem;   // Francais
+    private JMenuItem languageDutchMenuItem;    // Nederlands
+   
     private JButton printButton;
     private JPanel printPanel;
     private JLabel statusIcon;
@@ -106,34 +116,40 @@ public class BelgianEidViewer extends javax.swing.JFrame implements View, Observ
     private IdentityPanel identityPanel;
     private CertificatesPanel certificatesPanel;
     private CardPanel cardPanel;
-    private PreferencesPanel preferencesPanel;
     private LogPanel logPanel;
-    private Action printAction, openAction, saveAction, closeAction, aboutAction, quitAction;
+    private PrintAction printAction;
+    private OpenFileAction openAction;
+    private SaveFileAction saveAction;
+    private CloseFileAction closeAction;
+    private AboutAction aboutAction;
+    private QuitAction quitAction;
+    private PreferencesAction preferencesAction;
+    private ShowHideLogAction showHideLogAction;
 
     public BelgianEidViewer()
     {
-        Locale.setDefault(ViewerPrefs.getLocale());
-        bundle = ResourceBundle.getBundle("be/fedict/eidviewer/gui/resources/BelgianEidViewer");
-        coreMessages = new Messages(Locale.getDefault());
         initActions();
+        initTexts();
         initComponents();
+        initI18N();
         initPanels();
         initIcons();
-        initTexts();
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
     
     private void initActions()
     {
-        printAction = new PrintAction("Print", new Integer(KeyEvent.VK_P));
-        openAction = new OpenFileAction("Open", new Integer(KeyEvent.VK_O));
-        closeAction = new CloseFileAction("Close", new Integer(KeyEvent.VK_W));
-        saveAction = new SaveFileAction("Save As", new Integer(KeyEvent.VK_S));
-        aboutAction = new AboutAction("About");
-        quitAction = new QuitAction("Quit",new Integer(KeyEvent.VK_Q));
+        printAction     = new PrintAction       ("Print", new Integer(KeyEvent.VK_P));
+        openAction      = new OpenFileAction    ("Open", new Integer(KeyEvent.VK_O));
+        closeAction     = new CloseFileAction   ("Close", new Integer(KeyEvent.VK_W));
+        saveAction      = new SaveFileAction    ("Save As", new Integer(KeyEvent.VK_S));
+        preferencesAction=new PreferencesAction ("Preferences");
+        aboutAction     = new AboutAction       ("About");
+        quitAction      = new QuitAction        ("Quit",new Integer(KeyEvent.VK_Q));
+        showHideLogAction=new ShowHideLogAction ("Show Log",new Integer(KeyEvent.VK_L));
     }
-
-    private void start()
+    
+    private void logJavaSpecs()
     {
         Properties properties = System.getProperties();
         Set<String> labels = properties.stringPropertyNames();
@@ -144,6 +160,11 @@ public class BelgianEidViewer extends javax.swing.JFrame implements View, Observ
                         label, properties.getProperty(label)
                     });
         }
+    }
+
+    private void start()
+    {
+        logJavaSpecs();
         logger.fine("starting..");
 
         eid = new PCSCEidImpl(this, coreMessages);
@@ -152,7 +173,7 @@ public class BelgianEidViewer extends javax.swing.JFrame implements View, Observ
         trustServiceController = new TrustServiceController(ViewerPrefs.getTrustServiceURL());
         trustServiceController.start();
 
-        if (ViewerPrefs.getUseHTTPProxy())
+        if(ViewerPrefs.getUseHTTPProxy())
         {
             trustServiceController.setProxy(ViewerPrefs.getHTTPProxyHost(), ViewerPrefs.getHTTPProxyPort());
         }
@@ -171,15 +192,9 @@ public class BelgianEidViewer extends javax.swing.JFrame implements View, Observ
         certificatesPanel.setEidController(eidController);
         certificatesPanel.start();
 
-        preferencesPanel.setTrustServiceController(trustServiceController);
-        preferencesPanel.setEidController(eidController);
-        preferencesPanel.setDiagnosticsContainer(this);
-        preferencesPanel.start();
-
         eidController.addObserver(identityPanel);
         eidController.addObserver(cardPanel);
         eidController.addObserver(certificatesPanel);
-        eidController.addObserver(preferencesPanel);
         eidController.addObserver(this);
         eidController.start();
 
@@ -211,6 +226,14 @@ public class BelgianEidViewer extends javax.swing.JFrame implements View, Observ
                 saveAction.setEnabled(eidController.hasIdentity() && eidController.hasAddress() && eidController.hasPhoto() && eidController.hasAuthCertChain());
                 openAction.setEnabled(eidController.getState() != EidController.STATE.EID_PRESENT && eidController.getState() != EidController.STATE.EID_YIELDED);
                 closeAction.setEnabled(eidController.isLoadedFromFile() && (eidController.hasAddress() || eidController.hasPhoto() || eidController.hasAuthCertChain() || eidController.hasSignCertChain()));
+                
+                boolean safeToUpdateI18N=(eidController.getActivity()==EidController.ACTIVITY.IDLE);
+                languageGermanMenuItem.setEnabled(safeToUpdateI18N);
+                languageEnglishMenuItem.setEnabled(safeToUpdateI18N);
+                languageFrenchMenuItem.setEnabled(safeToUpdateI18N);
+                languageDutchMenuItem.setEnabled(safeToUpdateI18N);
+                
+                preferencesAction.setEnabled(!trustServiceController.isValidating());
 
                 statusIcon.setIcon(cardStatusIcons.get(eidController.getState()));
 
@@ -227,7 +250,7 @@ public class BelgianEidViewer extends javax.swing.JFrame implements View, Observ
             }
         });
     }
-
+    
     private void initComponents()
     {
         tabPanel = new JTabbedPane();
@@ -236,49 +259,54 @@ public class BelgianEidViewer extends javax.swing.JFrame implements View, Observ
         statusText = new JLabel();
         printPanel = new JPanel();
         printButton = new JButton();
+        
         menuBar = new JMenuBar();
+        
         fileMenu = new JMenu();
         openMenuItem = new JMenuItem();
         saveMenuItem = new JMenuItem();
         closeMenuItem = new JMenuItem();
+        preferencesMenuItem = new JMenuItem();
         printMenuItem = new JMenuItem();
         fileMenuQuitItem = new JMenuItem();
+        
+        languageMenu = new JMenu();
+        languageGermanMenuItem = new JMenuItem();
+        languageEnglishMenuItem = new JMenuItem();
+        languageFrenchMenuItem = new JMenuItem();
+        languageDutchMenuItem = new JMenuItem();
+        
         helpMenu = new JMenu();
         aboutMenuItem = new JMenuItem();
-
+        showLogMenuItem = new JCheckBoxMenuItem();
+        
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setBackground(new Color(255, 255, 255));
         setMinimumSize(new Dimension(800, 600));
 
-        tabPanel.setName("tabPanel"); // NOI18N
         tabPanel.setPreferredSize(new Dimension(600, 512));
         getContentPane().add(tabPanel, BorderLayout.CENTER);
 
-        statusPanel.setName("statusPanel"); // NOI18N
         statusPanel.setLayout(new BorderLayout());
 
         statusIcon.setHorizontalAlignment(SwingConstants.CENTER);
         statusIcon.setIcon(new ImageIcon(getClass().getResource("/be/fedict/eidviewer/gui/resources/icons/state_noeidpresent.png"))); // NOI18N
         statusIcon.setMaximumSize(new Dimension(72, 72));
         statusIcon.setMinimumSize(new Dimension(72, 72));
-        statusIcon.setName("statusIcon"); // NOI18N
         statusIcon.setPreferredSize(new Dimension(90, 72));
         statusPanel.add(statusIcon, BorderLayout.EAST);
 
         statusText.setHorizontalAlignment(SwingConstants.RIGHT);
-        statusText.setName("statusText"); // NOI18N
         statusPanel.add(statusText, BorderLayout.CENTER);
 
         printPanel.setMinimumSize(new Dimension(72, 72));
-        printPanel.setName("printPanel"); // NOI18N
         printPanel.setPreferredSize(new Dimension(72, 72));
         printPanel.setLayout(new GridBagLayout());
 
-        printButton.setAction(printAction); // NOI18N
+        printButton.setAction(printAction);
         printButton.setHideActionText(true);
         printButton.setMaximumSize(new Dimension(200, 50));
         printButton.setMinimumSize(new Dimension(50, 50));
-        printButton.setName("printButton"); // NOI18N
         printButton.setPreferredSize(new Dimension(200, 50));
         printButton.setIcon(new ImageIcon(getClass().getResource("/be/fedict/eidviewer/gui/resources/icons/print.png"))); // NOI18N
         printPanel.add(printButton, new GridBagConstraints());
@@ -287,59 +315,96 @@ public class BelgianEidViewer extends javax.swing.JFrame implements View, Observ
 
         getContentPane().add(statusPanel, BorderLayout.SOUTH);
 
-        menuBar.setName("menuBar"); // NOI18N
-
-        fileMenu.setText(bundle.getString("fileMenuTitle")); // NOI18N
-        fileMenu.setName("fileMenu"); // NOI18N
-
-        openMenuItem.setAction(openAction); // NOI18N
-        openMenuItem.setName("jMenuItem2"); // NOI18N
+        openMenuItem.setAction(openAction);
         openMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, Event.CTRL_MASK));
         fileMenu.add(openMenuItem);
 
-        saveMenuItem.setAction(saveAction); // NOI18N
-        saveMenuItem.setName("jMenuItem3"); // NOI18N
+        saveMenuItem.setAction(saveAction);
         saveMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, Event.CTRL_MASK));
         fileMenu.add(saveMenuItem);
 
-        closeMenuItem.setAction(closeAction); // NOI18N
+        closeMenuItem.setAction(closeAction);
         closeMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_W, Event.CTRL_MASK));
-        closeMenuItem.setName("jMenuItem4"); // NOI18N
         fileMenu.add(closeMenuItem);
 
         fileMenu.addSeparator();
+        
+        preferencesMenuItem.setAction(preferencesAction); 
+        fileMenu.add(preferencesMenuItem);
 
-        printMenuItem.setAction(printAction); // NOI18N
-        printMenuItem.setText(bundle.getString("fileMenuPrintItem")); // NOI18N
-        printMenuItem.setName("jMenuItem1"); // NOI18N
+        fileMenu.addSeparator();
+        
+        printMenuItem.setAction(printAction); 
         printMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P, Event.CTRL_MASK));
         fileMenu.add(printMenuItem);
 
         fileMenu.addSeparator();
 
         quitAction.setEnabled(true);
-        fileMenuQuitItem.setAction(quitAction); // NOI18N
+        fileMenuQuitItem.setAction(quitAction); 
         fileMenuQuitItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q, Event.CTRL_MASK));
-        fileMenuQuitItem.setText(bundle.getString("fileMenuQuitItem")); // NOI18N
-        fileMenuQuitItem.setName("fileMenuQuitItem"); // NOI18N
         fileMenu.add(fileMenuQuitItem);
 
         menuBar.add(fileMenu);
-
-        helpMenu.setAction(aboutAction); // NOI18N
-        helpMenu.setText(bundle.getString("helpMenuTitle")); // NOI18N
-        helpMenu.setName("jMenu1"); // NOI18N
-
-        aboutMenuItem.setAction(aboutAction); // NOI18N
-        aboutMenuItem.setText(bundle.getString("about.Action.text")); // NOI18N
-        aboutMenuItem.setName("jMenuItem5"); // NOI18N
+        
+        languageGermanMenuItem.setAction        (new LanguageAction("Deutsch",new Integer(KeyEvent.VK_D),new Locale("de","BE"),this));
+        languageGermanMenuItem.setAccelerator   (KeyStroke.getKeyStroke(KeyEvent.VK_D, Event.CTRL_MASK));
+        languageEnglishMenuItem.setAction       (new LanguageAction("English",new Integer(KeyEvent.VK_E),new Locale("en","US"),this));
+        languageEnglishMenuItem.setAccelerator  (KeyStroke.getKeyStroke(KeyEvent.VK_E, Event.CTRL_MASK));
+        languageFrenchMenuItem.setAction        (new LanguageAction("Français",new Integer(KeyEvent.VK_F),new Locale("fr","BE"),this));
+        languageFrenchMenuItem.setAccelerator   (KeyStroke.getKeyStroke(KeyEvent.VK_F, Event.CTRL_MASK));
+        languageDutchMenuItem.setAction         (new LanguageAction("Nederlands",new Integer(KeyEvent.VK_N),new Locale("nl","BE"),this));
+        languageDutchMenuItem.setAccelerator    (KeyStroke.getKeyStroke(KeyEvent.VK_N, Event.CTRL_MASK));
+        languageMenu.add(languageGermanMenuItem);
+        languageMenu.add(languageEnglishMenuItem);
+        languageMenu.add(languageFrenchMenuItem);
+        languageMenu.add(languageDutchMenuItem);
+        menuBar.add(languageMenu);
+        
+        aboutMenuItem.setAction(aboutAction);
         helpMenu.add(aboutMenuItem);
-
+        helpMenu.addSeparator();
+        showLogMenuItem.setAction(showHideLogAction);
+        showLogMenuItem.setAccelerator    (KeyStroke.getKeyStroke(KeyEvent.VK_L, Event.CTRL_MASK));
+        helpMenu.add(showLogMenuItem);
         menuBar.add(helpMenu);
-
         setJMenuBar(menuBar);
-
         pack();
+    }
+
+    private void initI18N()
+    {
+        Locale.setDefault(ViewerPrefs.getLocale());
+        coreMessages = new Messages(Locale.getDefault());
+        bundle = ResourceBundle.getBundle("be/fedict/eidviewer/gui/resources/BelgianEidViewer");    // NOI18N
+        fileMenu.setText(bundle.getString("fileMenuTitle"));                                        // NOI18N
+        languageMenu.setText(bundle.getString("languageMenuTitle"));                                // NOI18N
+        helpMenu.setText(bundle.getString("helpMenuTitle"));                                        // NOI18N
+        aboutMenuItem.setText(bundle.getString("about.Action.text"));                               // NOI18N
+        quitAction.setName(bundle.getString("quit.Action.text"));                                   // NOI18N
+        openAction.setName(bundle.getString("openFile.Action.text"));                               // NOI18N
+        saveAction.setName(bundle.getString("saveFile.Action.text"));                               // NOI18N
+        closeAction.setName(bundle.getString("closeFile.Action.text"));                             // NOI18N
+        printAction.setName(bundle.getString("print.Action.text"));                                 // NOI18N
+        aboutAction.setName(bundle.getString("about.Action.text"));                                 // NOI18N
+        preferencesAction.setName(bundle.getString("prefs.Action.text"));                           // NOI18N
+        showHideLogAction.setName(bundle.getString("showLogTab"));                                  // NOI18N
+        cardStatusTexts = new EnumMap<EidController.STATE, String>(EidController.STATE.class);
+        cardStatusTexts.put(EidController.STATE.NO_READERS, bundle.getString(EidController.STATE.NO_READERS.toString()));
+        cardStatusTexts.put(EidController.STATE.ERROR, bundle.getString(EidController.STATE.ERROR.toString()));
+        cardStatusTexts.put(EidController.STATE.NO_EID_PRESENT, bundle.getString(EidController.STATE.NO_EID_PRESENT.toString()));
+        cardStatusTexts.put(EidController.STATE.FILE_LOADING, bundle.getString(EidController.STATE.FILE_LOADING.toString()));
+        cardStatusTexts.put(EidController.STATE.FILE_LOADED, bundle.getString(EidController.STATE.FILE_LOADED.toString()));
+        cardStatusTexts.put(EidController.STATE.EID_YIELDED, bundle.getString(EidController.STATE.EID_YIELDED.toString()));
+        activityTexts.put(EidController.ACTIVITY.IDLE, bundle.getString(EidController.ACTIVITY.IDLE.toString()));
+        activityTexts.put(EidController.ACTIVITY.READING_IDENTITY, bundle.getString(EidController.ACTIVITY.READING_IDENTITY.toString()));
+        activityTexts.put(EidController.ACTIVITY.READING_ADDRESS, bundle.getString(EidController.ACTIVITY.READING_ADDRESS.toString()));
+        activityTexts.put(EidController.ACTIVITY.READING_PHOTO, bundle.getString(EidController.ACTIVITY.READING_PHOTO.toString()));
+        activityTexts.put(EidController.ACTIVITY.READING_RRN_CHAIN, bundle.getString(EidController.ACTIVITY.READING_RRN_CHAIN.toString()));
+        activityTexts.put(EidController.ACTIVITY.READING_AUTH_CHAIN, bundle.getString(EidController.ACTIVITY.READING_AUTH_CHAIN.toString()));
+        activityTexts.put(EidController.ACTIVITY.READING_SIGN_CHAIN, bundle.getString(EidController.ACTIVITY.READING_SIGN_CHAIN.toString()));
+        activityTexts.put(EidController.ACTIVITY.VALIDATING_IDENTITY, bundle.getString(EidController.ACTIVITY.VALIDATING_IDENTITY.toString()));
+        activityTexts.put(EidController.ACTIVITY.VALIDATING_ADDRESS, bundle.getString(EidController.ACTIVITY.VALIDATING_ADDRESS.toString()));
     }
 
     private void initPanels()
@@ -347,16 +412,26 @@ public class BelgianEidViewer extends javax.swing.JFrame implements View, Observ
         identityPanel = new IdentityPanel();
         cardPanel = new CardPanel();
         certificatesPanel = new CertificatesPanel();
-        preferencesPanel = new PreferencesPanel();
-        tabPanel.add(identityPanel, bundle.getString("IDENTITY"));
-        tabPanel.add(cardPanel, bundle.getString("CARD"));
-        tabPanel.add(certificatesPanel, bundle.getString("CERTIFICATES"));
-        tabPanel.add(preferencesPanel, bundle.getString("PREFERENCES"));
+        tabPanel.add(identityPanel);
+        tabPanel.add(cardPanel);
+        tabPanel.add(certificatesPanel);
+        initTabsI18N();
 
         if (ViewerPrefs.getShowLogTab())
         {
             showLog(true);
         }
+    }
+    
+    private void initTabsI18N()
+    {
+        identityPanel.setName(bundle.getString("IDENTITY"));
+        cardPanel.setName(bundle.getString("CARD"));
+        certificatesPanel.setName(bundle.getString("CERTIFICATES"));
+        if(logPanel!=null)
+            logPanel.setName(bundle.getString("LOG"));
+        for(int i=0;i<tabPanel.getComponentCount();i++)
+            tabPanel.setTitleAt(i,tabPanel.getComponent(i).getName());
     }
 
     private void initIcons()
@@ -374,25 +449,41 @@ public class BelgianEidViewer extends javax.swing.JFrame implements View, Observ
     private void initTexts()
     {
         cardStatusTexts = new EnumMap<EidController.STATE, String>(EidController.STATE.class);
-        cardStatusTexts.put(EidController.STATE.NO_READERS, bundle.getString(EidController.STATE.NO_READERS.toString()));
-        cardStatusTexts.put(EidController.STATE.ERROR, bundle.getString(EidController.STATE.ERROR.toString()));
-        cardStatusTexts.put(EidController.STATE.NO_EID_PRESENT, bundle.getString(EidController.STATE.NO_EID_PRESENT.toString()));
-        cardStatusTexts.put(EidController.STATE.FILE_LOADING, bundle.getString(EidController.STATE.FILE_LOADING.toString()));
-        cardStatusTexts.put(EidController.STATE.FILE_LOADED, bundle.getString(EidController.STATE.FILE_LOADED.toString()));
-        cardStatusTexts.put(EidController.STATE.EID_YIELDED, bundle.getString(EidController.STATE.EID_YIELDED.toString()));
         activityTexts = new EnumMap<EidController.ACTIVITY, String>(EidController.ACTIVITY.class);
-        activityTexts.put(EidController.ACTIVITY.IDLE, bundle.getString(EidController.ACTIVITY.IDLE.toString()));
-        activityTexts.put(EidController.ACTIVITY.READING_IDENTITY, bundle.getString(EidController.ACTIVITY.READING_IDENTITY.toString()));
-        activityTexts.put(EidController.ACTIVITY.READING_ADDRESS, bundle.getString(EidController.ACTIVITY.READING_ADDRESS.toString()));
-        activityTexts.put(EidController.ACTIVITY.READING_PHOTO, bundle.getString(EidController.ACTIVITY.READING_PHOTO.toString()));
-        activityTexts.put(EidController.ACTIVITY.READING_RRN_CHAIN, bundle.getString(EidController.ACTIVITY.READING_RRN_CHAIN.toString()));
-        activityTexts.put(EidController.ACTIVITY.READING_AUTH_CHAIN, bundle.getString(EidController.ACTIVITY.READING_AUTH_CHAIN.toString()));
-        activityTexts.put(EidController.ACTIVITY.READING_SIGN_CHAIN, bundle.getString(EidController.ACTIVITY.READING_SIGN_CHAIN.toString()));
-        activityTexts.put(EidController.ACTIVITY.VALIDATING_IDENTITY, bundle.getString(EidController.ACTIVITY.VALIDATING_IDENTITY.toString()));
-        activityTexts.put(EidController.ACTIVITY.VALIDATING_ADDRESS, bundle.getString(EidController.ACTIVITY.VALIDATING_ADDRESS.toString()));
     }
 
-    private class AboutAction extends AbstractAction
+    public void setDynamicLocale(Locale locale)
+    {
+        ViewerPrefs.setLocale(locale);
+        initI18N();
+        initTabsI18N();
+        cardPanel.setDynamicLocale(locale);
+        certificatesPanel.setDynamicLocale(locale);
+        identityPanel.setDynamicLocale(locale);
+        updateVisibleState();                       // to update the status strings
+    }
+    
+    private abstract class DynamicLocaleAbstractAction extends AbstractAction
+    {
+        public DynamicLocaleAbstractAction(String text, Integer mnemonic)
+        {
+            super(text);
+            putValue(MNEMONIC_KEY, mnemonic);
+        }
+        
+        public DynamicLocaleAbstractAction(String text)
+        {
+            super(text);
+        }
+        
+        public DynamicLocaleAbstractAction setName(String text)
+        {
+            super.putValue(NAME, text);
+            return this;
+        }
+    }
+
+    private class AboutAction extends DynamicLocaleAbstractAction
     {
         public AboutAction(String text)
         {
@@ -401,17 +492,44 @@ public class BelgianEidViewer extends javax.swing.JFrame implements View, Observ
         
         public void actionPerformed(ActionEvent ae)
         {
-            final JDialog dialog = new JDialog(BelgianEidViewer.this, bundle.getString("about.Action.text"), true);
-            dialog.getContentPane().setLayout(new BorderLayout());
-            dialog.getContentPane().add(BorderLayout.CENTER, new AboutPanel().setDialog(dialog));
-            dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-            dialog.setLocationRelativeTo(null);
-            dialog.setSize(800, 512);
-            dialog.setVisible(true);
+            JOptionPane.showMessageDialog(null, new AboutPanel(),bundle.getString("about.Action.text"),JOptionPane.PLAIN_MESSAGE);
         }
     }
+    private class PreferencesAction extends DynamicLocaleAbstractAction
+    {
+        public PreferencesAction(String text)
+        {
+            super(text);
+        }
+        
+        public void actionPerformed(ActionEvent ae)
+        {
+            PreferencesPanel preferencesPanel=new PreferencesPanel();
+            int answer=JOptionPane.showOptionDialog(null, preferencesPanel,bundle.getString("prefs.Action.text"),JOptionPane.OK_CANCEL_OPTION,JOptionPane.PLAIN_MESSAGE,null,null,null);
+            
+            if(answer==JOptionPane.OK_OPTION)
+            {
+               if(preferencesPanel.getUseProxy())
+               {
+                   ViewerPrefs.setUseHTTPProxy(true);
+                   ViewerPrefs.setHTTPProxyHost(preferencesPanel.getHttpProxyHost());
+                   ViewerPrefs.setHTTPProxyPort(preferencesPanel.getHttpProxyPort());
+               }
+               else
+               {
+                   ViewerPrefs.setUseHTTPProxy(false);
+               }
+            }
+            
+            if (ViewerPrefs.getUseHTTPProxy())
+                trustServiceController.setProxy(ViewerPrefs.getHTTPProxyHost(), ViewerPrefs.getHTTPProxyPort());
+            else
+                trustServiceController.setProxy(null, 0);
+        }
+    }
+    
 
-    private class PrintAction extends AbstractAction
+    private class PrintAction extends DynamicLocaleAbstractAction
     {
         public PrintAction(String text, Integer mnemonic)
         {
@@ -459,23 +577,37 @@ public class BelgianEidViewer extends javax.swing.JFrame implements View, Observ
         }
     }
 
-    private class QuitAction extends AbstractAction
+    private class QuitAction extends DynamicLocaleAbstractAction
     {
         public QuitAction(String text, Integer mnemonic)
         {
             super(text);
             putValue(MNEMONIC_KEY, mnemonic);
-            
         }
-        
+
         public void actionPerformed(ActionEvent ae)
         {
             logger.fine("quit action chosen..");
             BelgianEidViewer.this.stop();
         }
     }
+    
+    private class ShowHideLogAction extends DynamicLocaleAbstractAction
+    {
+        public ShowHideLogAction(String text, Integer mnemonic)
+        {
+            super(text);
+            putValue(MNEMONIC_KEY, mnemonic);
+        }
 
-    private class OpenFileAction extends AbstractAction
+        public void actionPerformed(ActionEvent ae)
+        {
+            ViewerPrefs.setShowLogTab(showLogMenuItem.getState());
+            showLog(ViewerPrefs.getShowLogTab());
+        }
+    }
+
+    private class OpenFileAction extends DynamicLocaleAbstractAction
     {
         public OpenFileAction(String text, Integer mnemonic)
         {
@@ -513,7 +645,7 @@ public class BelgianEidViewer extends javax.swing.JFrame implements View, Observ
         }
     }
 
-    private class SaveFileAction extends AbstractAction
+    private class SaveFileAction extends DynamicLocaleAbstractAction
     {
         public SaveFileAction(String text, Integer mnemonic)
         {
@@ -532,7 +664,7 @@ public class BelgianEidViewer extends javax.swing.JFrame implements View, Observ
         }
     }
 
-    private class CloseFileAction extends AbstractAction
+    private class CloseFileAction extends DynamicLocaleAbstractAction
     {
         public CloseFileAction(String text, Integer mnemonic)
         {
@@ -544,6 +676,26 @@ public class BelgianEidViewer extends javax.swing.JFrame implements View, Observ
         {
             logger.fine("Close action chosen..");
             eidController.closeFile();
+        }
+    }
+    
+    private class LanguageAction extends DynamicLocaleAbstractAction
+    {
+        private Locale          locale;
+        private DynamicLocale   target;
+        
+        public LanguageAction(String text, Integer mnemonic, Locale locale, DynamicLocale target)
+        {
+            super(text);
+            putValue(MNEMONIC_KEY, mnemonic);
+            this.locale=locale;
+            this.target=target;
+        }
+        
+        public void actionPerformed(ActionEvent ae)
+        {
+            logger.log(Level.FINE, "Language action chosen : [{0}]", locale.toString());
+            target.setDynamicLocale(locale);
         }
     }
 
@@ -585,7 +737,7 @@ public class BelgianEidViewer extends javax.swing.JFrame implements View, Observ
     {
     }
 
-    private void setProgress(final int progress)
+    public void setProgress(final int progress)
     {
     }
 
@@ -618,7 +770,6 @@ public class BelgianEidViewer extends javax.swing.JFrame implements View, Observ
                 logPanel = new LogPanel();
                 logPanel.start();
                 tabPanel.add(logPanel, bundle.getString("LOG"));
-                tabPanel.insertTab(bundle.getString("LOG"), null, logPanel, bundle.getString("LOG"), 5);
             }
         }
         else
