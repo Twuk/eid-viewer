@@ -169,9 +169,8 @@ public class PreferencesPanel extends javax.swing.JPanel implements Observer, Co
         httpProxyPort.setEnabled(enabled);
     }
 
-    @SuppressWarnings("unchecked")
-    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
-    private void initComponents() {
+    private void initComponents()
+	{
         java.awt.GridBagConstraints gridBagConstraints;
 
         jPanel1 = new javax.swing.JPanel();
@@ -318,8 +317,8 @@ public class PreferencesPanel extends javax.swing.JPanel implements Observer, Co
         jPanel1.add(diagnosticsPrefsPanel);
 
         add(jPanel1, java.awt.BorderLayout.CENTER);
-    }// </editor-fold>//GEN-END:initComponents
-    // Variables declaration - do not modify//GEN-BEGIN:variables
+    }
+
     private javax.swing.JButton applyProxyButton;
     private javax.swing.JPanel diagnosticsPrefsPanel;
     private javax.swing.JTextField httpProxyHost;
@@ -337,7 +336,6 @@ public class PreferencesPanel extends javax.swing.JPanel implements Observer, Co
     private javax.swing.JLabel spacer;
     private javax.swing.JLabel spacer1;
     private javax.swing.JCheckBox useProxyCheckbox;
-    // End of variables declaration//GEN-END:variables
 
     public void update(Observable o, Object o1)
     {
