@@ -350,9 +350,8 @@ public class CertificatesPanel extends javax.swing.JPanel implements Observer, T
         });
     }
 
-    @SuppressWarnings("unchecked")
-    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
-    private void initComponents() {
+    private void initComponents()
+	{
         java.awt.GridBagConstraints gridBagConstraints;
 
         certsDetailsSplitPane = new javax.swing.JSplitPane();
@@ -580,8 +579,8 @@ public class CertificatesPanel extends javax.swing.JPanel implements Observer, T
         trustPrefspanel.add(validateNowButton);
 
         add(trustPrefspanel, java.awt.BorderLayout.PAGE_END);
-    }// </editor-fold>//GEN-END:initComponents
-    // Variables declaration - do not modify//GEN-BEGIN:variables
+    }
+
     private javax.swing.JCheckBox alwaysValidateCheckbox;
     private javax.swing.JPanel authCertsPanel;
     private javax.swing.JPanel certDetailsPanel;
@@ -605,7 +604,6 @@ public class CertificatesPanel extends javax.swing.JPanel implements Observer, T
     private javax.swing.JLabel validUntilLabel;
     private javax.swing.JButton validateNowButton;
     private javax.swing.JSeparator validdUntilKeyUsageSeparator;
-    // End of variables declaration//GEN-END:variables
 
     private void initCertsTree()
     {

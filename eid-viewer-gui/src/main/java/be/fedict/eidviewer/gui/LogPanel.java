@@ -277,10 +277,8 @@ public class LogPanel extends javax.swing.JPanel
         logTextPanel.scrollRectToVisible(visible);
     }
 
-    @SuppressWarnings("unchecked")
-    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
-    private void initComponents() {
-
+    private void initComponents()
+	{
         bottomPanel = new javax.swing.JPanel();
         levelCombo = new javax.swing.JComboBox();
         clearButton = new javax.swing.JButton();
@@ -310,14 +308,13 @@ public class LogPanel extends javax.swing.JPanel
         jScrollPane1.setViewportView(logTextPanel);
 
         add(jScrollPane1, java.awt.BorderLayout.CENTER);
-    }// </editor-fold>//GEN-END:initComponents
-    // Variables declaration - do not modify//GEN-BEGIN:variables
+    }
+
     private javax.swing.JPanel bottomPanel;
     private javax.swing.JButton clearButton;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JComboBox levelCombo;
     private javax.swing.JTextPane logTextPanel;
-    // End of variables declaration//GEN-END:variables
 
     public static enum ATTR
     {
