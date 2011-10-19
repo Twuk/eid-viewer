@@ -174,7 +174,11 @@ public class BelgianEidViewer extends javax.swing.JFrame implements View, Observ
     {
         logJavaSpecs();
         logger.fine("starting..");
-
+        
+        // get ProxyUtils class instantiated early because it needs to detect system proxy and
+        // it will get confused if we change proxy settings first
+        ProxyUtils.getSystemProxy();    
+        
         eid = new PCSCEid(this,ViewerPrefs.getLocale());
         eidController = new PCSCEidController(eid);
         trustServiceController = new TrustServiceController(ViewerPrefs.getTrustServiceURL());
@@ -757,7 +761,7 @@ public class BelgianEidViewer extends javax.swing.JFrame implements View, Observ
         {
             logger.log(Level.WARNING, "Can't Set SystemLookAndFeel", e);
         }
-
+        
         new BelgianEidViewer().start();
     }
 

@@ -34,7 +34,7 @@ public class ProxyUtils
 {
     private static final Logger logger              = Logger.getLogger(ProxyUtils.class.getName());
     private static final String USE_SYSTEM_PROXIES  = "java.net.useSystemProxies";
-    private static final String PROXY_TEST_URL      = "https://trust-ws.services.belgium.be/eid-trust-service-ws/xkms2";
+    private static final String PROXY_TEST_URL      = "http://trust-ws.services.belgium.be/eid-trust-service-ws/xkms2";
     private static final Proxy  systemProxy         =determineSystemProxy(PROXY_TEST_URL);
     
     public static Proxy getSystemProxy()
@@ -58,20 +58,33 @@ public class ProxyUtils
     
     private static Proxy determineSystemProxy(String forURL)
     {
-        Proxy newProxy=null;
+        Proxy newProxy=Proxy.NO_PROXY;
+        
+        logger.log(Level.FINEST, "Determining System Proxy For[{0}]", forURL);
         
         final String savedProxySetting = System.getProperty(USE_SYSTEM_PROXIES);
+        logger.finest("Saved Original useSystemProxies Setting");
 
         try
         {
+            logger.finest("Temporarily Enabling useSystemProxies");
             System.setProperty(USE_SYSTEM_PROXIES,"true");
+            logger.log(Level.FINEST, "using default ProxySelector on [{0}]", forURL);
             List<Proxy> availableProxies=ProxySelector.getDefault().select(new java.net.URI(PROXY_TEST_URL));
-            for (Proxy proxy : availableProxies)            // prefer direct connection
-                if(proxy.equals(Proxy.NO_PROXY))
-                    newProxy=proxy;
-            for(Proxy proxy : availableProxies)             // then HTTP proxies
+            logger.log(Level.FINEST, "Default ProxySelector returned [{0}] Proxy Objects", availableProxies.size());
+            
+            logger.finest("Finding HTTP Proxies");
+            for(Proxy proxy : availableProxies)             // try HTTP proxies
+            {
+                logger.log(Level.FINEST, "Checking Out [{0}]", proxy.toString());
                 if(proxy.type().equals(Proxy.Type.HTTP))
+                {
+                    logger.log(Level.FINEST, "Found HTTP Connection [{0}]", proxy.toString());
                     newProxy=proxy;
+                    break;
+                }
+            }
+   
         }
         catch(Exception e)
         {
@@ -80,7 +93,10 @@ public class ProxyUtils
         finally
         {
             if(savedProxySetting!=null)
+            {
+                logger.finest("Restoring Enabling useSystemProxies");
                 System.setProperty(USE_SYSTEM_PROXIES, savedProxySetting);
+            }
         }
 
         return newProxy;
