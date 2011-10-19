@@ -17,6 +17,15 @@
  */
 package be.fedict.eidviewer.gui;
 
+import be.fedict.eidviewer.gui.printing.IDPrintout;
+import be.fedict.eidviewer.gui.panels.LogPanel;
+import be.fedict.eidviewer.gui.panels.AboutPanel;
+import be.fedict.eidviewer.gui.panels.IdentityPanel;
+import be.fedict.eidviewer.gui.panels.CardPanel;
+import be.fedict.eidviewer.gui.panels.PreferencesPanel;
+import be.fedict.eidviewer.gui.panels.CertificatesPanel;
+import be.fedict.eidviewer.lib.PCSCEidController;
+import be.fedict.eidviewer.lib.TrustServiceController;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -28,21 +37,21 @@ import java.io.IOException;
 import java.util.ResourceBundle;
 
 import be.fedict.eid.applet.DiagnosticTests;
-import be.fedict.eid.applet.Messages;
 import be.fedict.eid.applet.Messages.MESSAGE_ID;
 import be.fedict.eid.applet.Status;
 import be.fedict.eid.applet.View;
-import be.fedict.eidviewer.gui.helper.EidFileFilter;
-import be.fedict.eidviewer.gui.helper.EidFilePreviewAccessory;
-import be.fedict.eidviewer.gui.helper.EidFileView;
+import be.fedict.eidviewer.lib.file.gui.EidFileFilter;
+import be.fedict.eidviewer.lib.file.gui.EidFilePreviewAccessory;
+import be.fedict.eidviewer.lib.file.gui.EidFileView;
 import be.fedict.eidviewer.gui.helper.ImageUtilities;
-import be.fedict.eidviewer.lib.Eid;
-import be.fedict.eidviewer.lib.PCSCEidImpl;
+import be.fedict.eidviewer.gui.helper.ProxyUtils;
+import be.fedict.eidviewer.lib.PCSCEid;
 import java.awt.Component;
-import java.awt.Event;
+import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
 import java.awt.print.PrinterException;
 import java.awt.print.PrinterJob;
+import java.net.Proxy;
 import java.util.EnumMap;
 import java.util.Locale;
 import java.util.Observable;
@@ -73,12 +82,12 @@ import javax.swing.WindowConstants;
  *
  * @author Frank Marien
  */
-public class BelgianEidViewer extends javax.swing.JFrame implements View, Observer, DiagnosticsContainer, DynamicLocale
+public class BelgianEidViewer extends javax.swing.JFrame implements View, Observer, DynamicLocale
 {
     private static final Logger logger = Logger.getLogger(BelgianEidViewer.class.getName());
     private ResourceBundle bundle;
     private static final String EXTENSION_PNG = ".png";
-    private static final String ICONS = "resources/icons/";
+    private static final String ICONS = "/be/fedict/eidviewer/gui/resources/icons/";
     
     private JMenuBar menuBar;
     
@@ -106,13 +115,12 @@ public class BelgianEidViewer extends javax.swing.JFrame implements View, Observ
     private JPanel statusPanel;
     private JLabel statusText;
     private JTabbedPane tabPanel;
-    private Messages coreMessages;
-    private Eid eid;
-    private EidController eidController;
+    private PCSCEid eid;
+    private PCSCEidController eidController;
     private TrustServiceController trustServiceController;
-    private EnumMap<EidController.STATE, ImageIcon> cardStatusIcons;
-    private EnumMap<EidController.STATE, String> cardStatusTexts;
-    private EnumMap<EidController.ACTIVITY, String> activityTexts;
+    private EnumMap<PCSCEidController.STATE, ImageIcon> cardStatusIcons;
+    private EnumMap<PCSCEidController.STATE, String> cardStatusTexts;
+    private EnumMap<PCSCEidController.ACTIVITY, String> activityTexts;
     private IdentityPanel identityPanel;
     private CertificatesPanel certificatesPanel;
     private CardPanel cardPanel;
@@ -167,20 +175,12 @@ public class BelgianEidViewer extends javax.swing.JFrame implements View, Observ
         logJavaSpecs();
         logger.fine("starting..");
 
-        eid = new PCSCEidImpl(this, coreMessages);
-        eidController = new EidController(eid);
-
+        eid = new PCSCEid(this,ViewerPrefs.getLocale());
+        eidController = new PCSCEidController(eid);
         trustServiceController = new TrustServiceController(ViewerPrefs.getTrustServiceURL());
         trustServiceController.start();
 
-        if(ViewerPrefs.getUseHTTPProxy())
-        {
-            trustServiceController.setProxy(ViewerPrefs.getHTTPProxyHost(), ViewerPrefs.getHTTPProxyPort());
-        }
-        else
-        {
-            trustServiceController.setProxy(null, 0);
-        }
+        setTrustServiceProxy();
 
         eidController.setTrustServiceController(trustServiceController);
         eidController.setAutoValidateTrust(ViewerPrefs.getIsAutoValidating());
@@ -224,10 +224,10 @@ public class BelgianEidViewer extends javax.swing.JFrame implements View, Observ
             {
                 printAction.setEnabled(eidController.hasIdentity() && eidController.hasAddress() && eidController.hasPhoto() && (PrinterJob.lookupPrintServices().length > 0));
                 saveAction.setEnabled(eidController.hasIdentity() && eidController.hasAddress() && eidController.hasPhoto() && eidController.hasAuthCertChain());
-                openAction.setEnabled(eidController.getState() != EidController.STATE.EID_PRESENT && eidController.getState() != EidController.STATE.EID_YIELDED);
+                openAction.setEnabled(eidController.getState() != PCSCEidController.STATE.EID_PRESENT && eidController.getState() != PCSCEidController.STATE.EID_YIELDED);
                 closeAction.setEnabled(eidController.isLoadedFromFile() && (eidController.hasAddress() || eidController.hasPhoto() || eidController.hasAuthCertChain() || eidController.hasSignCertChain()));
                 
-                boolean safeToUpdateI18N=(eidController.getActivity()==EidController.ACTIVITY.IDLE);
+                boolean safeToUpdateI18N=(eidController.getActivity()==PCSCEidController.ACTIVITY.IDLE);
                 languageGermanMenuItem.setEnabled(safeToUpdateI18N);
                 languageEnglishMenuItem.setEnabled(safeToUpdateI18N);
                 languageFrenchMenuItem.setEnabled(safeToUpdateI18N);
@@ -316,15 +316,15 @@ public class BelgianEidViewer extends javax.swing.JFrame implements View, Observ
         getContentPane().add(statusPanel, BorderLayout.SOUTH);
 
         openMenuItem.setAction(openAction);
-        openMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, Event.CTRL_MASK));
+        openMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
         fileMenu.add(openMenuItem);
 
         saveMenuItem.setAction(saveAction);
-        saveMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, Event.CTRL_MASK));
+        saveMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
         fileMenu.add(saveMenuItem);
 
         closeMenuItem.setAction(closeAction);
-        closeMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_W, Event.CTRL_MASK));
+        closeMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_W, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
         fileMenu.add(closeMenuItem);
 
         fileMenu.addSeparator();
@@ -335,26 +335,26 @@ public class BelgianEidViewer extends javax.swing.JFrame implements View, Observ
         fileMenu.addSeparator();
         
         printMenuItem.setAction(printAction); 
-        printMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P, Event.CTRL_MASK));
+        printMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
         fileMenu.add(printMenuItem);
 
         fileMenu.addSeparator();
 
         quitAction.setEnabled(true);
         fileMenuQuitItem.setAction(quitAction); 
-        fileMenuQuitItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q, Event.CTRL_MASK));
+        fileMenuQuitItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
         fileMenu.add(fileMenuQuitItem);
 
         menuBar.add(fileMenu);
         
         languageGermanMenuItem.setAction        (new LanguageAction("Deutsch",new Integer(KeyEvent.VK_D),new Locale("de","BE"),this));
-        languageGermanMenuItem.setAccelerator   (KeyStroke.getKeyStroke(KeyEvent.VK_D, Event.CTRL_MASK));
+        languageGermanMenuItem.setAccelerator   (KeyStroke.getKeyStroke(KeyEvent.VK_D,Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
         languageEnglishMenuItem.setAction       (new LanguageAction("English",new Integer(KeyEvent.VK_E),new Locale("en","US"),this));
-        languageEnglishMenuItem.setAccelerator  (KeyStroke.getKeyStroke(KeyEvent.VK_E, Event.CTRL_MASK));
+        languageEnglishMenuItem.setAccelerator  (KeyStroke.getKeyStroke(KeyEvent.VK_E,Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
         languageFrenchMenuItem.setAction        (new LanguageAction("Français",new Integer(KeyEvent.VK_F),new Locale("fr","BE"),this));
-        languageFrenchMenuItem.setAccelerator   (KeyStroke.getKeyStroke(KeyEvent.VK_F, Event.CTRL_MASK));
+        languageFrenchMenuItem.setAccelerator   (KeyStroke.getKeyStroke(KeyEvent.VK_F,Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
         languageDutchMenuItem.setAction         (new LanguageAction("Nederlands",new Integer(KeyEvent.VK_N),new Locale("nl","BE"),this));
-        languageDutchMenuItem.setAccelerator    (KeyStroke.getKeyStroke(KeyEvent.VK_N, Event.CTRL_MASK));
+        languageDutchMenuItem.setAccelerator    (KeyStroke.getKeyStroke(KeyEvent.VK_N,Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
         languageMenu.add(languageGermanMenuItem);
         languageMenu.add(languageEnglishMenuItem);
         languageMenu.add(languageFrenchMenuItem);
@@ -365,7 +365,7 @@ public class BelgianEidViewer extends javax.swing.JFrame implements View, Observ
         helpMenu.add(aboutMenuItem);
         helpMenu.addSeparator();
         showLogMenuItem.setAction(showHideLogAction);
-        showLogMenuItem.setAccelerator    (KeyStroke.getKeyStroke(KeyEvent.VK_L, Event.CTRL_MASK));
+        showLogMenuItem.setAccelerator    (KeyStroke.getKeyStroke(KeyEvent.VK_L, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
         helpMenu.add(showLogMenuItem);
         menuBar.add(helpMenu);
         setJMenuBar(menuBar);
@@ -375,7 +375,6 @@ public class BelgianEidViewer extends javax.swing.JFrame implements View, Observ
     private void initI18N()
     {
         Locale.setDefault(ViewerPrefs.getLocale());
-        coreMessages = new Messages(Locale.getDefault());
         bundle = ResourceBundle.getBundle("be/fedict/eidviewer/gui/resources/BelgianEidViewer");    // NOI18N
         fileMenu.setText(bundle.getString("fileMenuTitle"));                                        // NOI18N
         languageMenu.setText(bundle.getString("languageMenuTitle"));                                // NOI18N
@@ -389,22 +388,22 @@ public class BelgianEidViewer extends javax.swing.JFrame implements View, Observ
         aboutAction.setName(bundle.getString("about.Action.text"));                                 // NOI18N
         preferencesAction.setName(bundle.getString("prefs.Action.text"));                           // NOI18N
         showHideLogAction.setName(bundle.getString("showLogTab"));                                  // NOI18N
-        cardStatusTexts = new EnumMap<EidController.STATE, String>(EidController.STATE.class);
-        cardStatusTexts.put(EidController.STATE.NO_READERS, bundle.getString(EidController.STATE.NO_READERS.toString()));
-        cardStatusTexts.put(EidController.STATE.ERROR, bundle.getString(EidController.STATE.ERROR.toString()));
-        cardStatusTexts.put(EidController.STATE.NO_EID_PRESENT, bundle.getString(EidController.STATE.NO_EID_PRESENT.toString()));
-        cardStatusTexts.put(EidController.STATE.FILE_LOADING, bundle.getString(EidController.STATE.FILE_LOADING.toString()));
-        cardStatusTexts.put(EidController.STATE.FILE_LOADED, bundle.getString(EidController.STATE.FILE_LOADED.toString()));
-        cardStatusTexts.put(EidController.STATE.EID_YIELDED, bundle.getString(EidController.STATE.EID_YIELDED.toString()));
-        activityTexts.put(EidController.ACTIVITY.IDLE, bundle.getString(EidController.ACTIVITY.IDLE.toString()));
-        activityTexts.put(EidController.ACTIVITY.READING_IDENTITY, bundle.getString(EidController.ACTIVITY.READING_IDENTITY.toString()));
-        activityTexts.put(EidController.ACTIVITY.READING_ADDRESS, bundle.getString(EidController.ACTIVITY.READING_ADDRESS.toString()));
-        activityTexts.put(EidController.ACTIVITY.READING_PHOTO, bundle.getString(EidController.ACTIVITY.READING_PHOTO.toString()));
-        activityTexts.put(EidController.ACTIVITY.READING_RRN_CHAIN, bundle.getString(EidController.ACTIVITY.READING_RRN_CHAIN.toString()));
-        activityTexts.put(EidController.ACTIVITY.READING_AUTH_CHAIN, bundle.getString(EidController.ACTIVITY.READING_AUTH_CHAIN.toString()));
-        activityTexts.put(EidController.ACTIVITY.READING_SIGN_CHAIN, bundle.getString(EidController.ACTIVITY.READING_SIGN_CHAIN.toString()));
-        activityTexts.put(EidController.ACTIVITY.VALIDATING_IDENTITY, bundle.getString(EidController.ACTIVITY.VALIDATING_IDENTITY.toString()));
-        activityTexts.put(EidController.ACTIVITY.VALIDATING_ADDRESS, bundle.getString(EidController.ACTIVITY.VALIDATING_ADDRESS.toString()));
+        cardStatusTexts = new EnumMap<PCSCEidController.STATE, String>(PCSCEidController.STATE.class);
+        cardStatusTexts.put(PCSCEidController.STATE.NO_READERS, bundle.getString(PCSCEidController.STATE.NO_READERS.toString()));
+        cardStatusTexts.put(PCSCEidController.STATE.ERROR, bundle.getString(PCSCEidController.STATE.ERROR.toString()));
+        cardStatusTexts.put(PCSCEidController.STATE.NO_EID_PRESENT, bundle.getString(PCSCEidController.STATE.NO_EID_PRESENT.toString()));
+        cardStatusTexts.put(PCSCEidController.STATE.FILE_LOADING, bundle.getString(PCSCEidController.STATE.FILE_LOADING.toString()));
+        cardStatusTexts.put(PCSCEidController.STATE.FILE_LOADED, bundle.getString(PCSCEidController.STATE.FILE_LOADED.toString()));
+        cardStatusTexts.put(PCSCEidController.STATE.EID_YIELDED, bundle.getString(PCSCEidController.STATE.EID_YIELDED.toString()));
+        activityTexts.put(PCSCEidController.ACTIVITY.IDLE, bundle.getString(PCSCEidController.ACTIVITY.IDLE.toString()));
+        activityTexts.put(PCSCEidController.ACTIVITY.READING_IDENTITY, bundle.getString(PCSCEidController.ACTIVITY.READING_IDENTITY.toString()));
+        activityTexts.put(PCSCEidController.ACTIVITY.READING_ADDRESS, bundle.getString(PCSCEidController.ACTIVITY.READING_ADDRESS.toString()));
+        activityTexts.put(PCSCEidController.ACTIVITY.READING_PHOTO, bundle.getString(PCSCEidController.ACTIVITY.READING_PHOTO.toString()));
+        activityTexts.put(PCSCEidController.ACTIVITY.READING_RRN_CHAIN, bundle.getString(PCSCEidController.ACTIVITY.READING_RRN_CHAIN.toString()));
+        activityTexts.put(PCSCEidController.ACTIVITY.READING_AUTH_CHAIN, bundle.getString(PCSCEidController.ACTIVITY.READING_AUTH_CHAIN.toString()));
+        activityTexts.put(PCSCEidController.ACTIVITY.READING_SIGN_CHAIN, bundle.getString(PCSCEidController.ACTIVITY.READING_SIGN_CHAIN.toString()));
+        activityTexts.put(PCSCEidController.ACTIVITY.VALIDATING_IDENTITY, bundle.getString(PCSCEidController.ACTIVITY.VALIDATING_IDENTITY.toString()));
+        activityTexts.put(PCSCEidController.ACTIVITY.VALIDATING_ADDRESS, bundle.getString(PCSCEidController.ACTIVITY.VALIDATING_ADDRESS.toString()));
     }
 
     private void initPanels()
@@ -436,20 +435,20 @@ public class BelgianEidViewer extends javax.swing.JFrame implements View, Observ
 
     private void initIcons()
     {
-        cardStatusIcons = new EnumMap<EidController.STATE, ImageIcon>(EidController.STATE.class);
-        cardStatusIcons.put(EidController.STATE.NO_READERS, ImageUtilities.getIcon(this.getClass(), ICONS + EidController.STATE.NO_READERS + EXTENSION_PNG));
-        cardStatusIcons.put(EidController.STATE.ERROR, ImageUtilities.getIcon(this.getClass(), ICONS + EidController.STATE.ERROR + EXTENSION_PNG));
-        cardStatusIcons.put(EidController.STATE.NO_EID_PRESENT, ImageUtilities.getIcon(this.getClass(), ICONS + EidController.STATE.NO_EID_PRESENT + EXTENSION_PNG));
-        cardStatusIcons.put(EidController.STATE.EID_PRESENT, ImageUtilities.getIcon(this.getClass(), ICONS + EidController.STATE.EID_PRESENT + EXTENSION_PNG));
-        cardStatusIcons.put(EidController.STATE.FILE_LOADING, ImageUtilities.getIcon(this.getClass(), ICONS + EidController.STATE.FILE_LOADING + EXTENSION_PNG));
-        cardStatusIcons.put(EidController.STATE.FILE_LOADED, ImageUtilities.getIcon(this.getClass(), ICONS + EidController.STATE.FILE_LOADED + EXTENSION_PNG));
-        cardStatusIcons.put(EidController.STATE.EID_YIELDED, ImageUtilities.getIcon(this.getClass(), ICONS + EidController.STATE.EID_YIELDED + EXTENSION_PNG));
+        cardStatusIcons = new EnumMap<PCSCEidController.STATE, ImageIcon>(PCSCEidController.STATE.class);
+        cardStatusIcons.put(PCSCEidController.STATE.NO_READERS, ImageUtilities.getIcon(this.getClass(), ICONS + PCSCEidController.STATE.NO_READERS + EXTENSION_PNG));
+        cardStatusIcons.put(PCSCEidController.STATE.ERROR, ImageUtilities.getIcon(this.getClass(), ICONS + PCSCEidController.STATE.ERROR + EXTENSION_PNG));
+        cardStatusIcons.put(PCSCEidController.STATE.NO_EID_PRESENT, ImageUtilities.getIcon(this.getClass(), ICONS + PCSCEidController.STATE.NO_EID_PRESENT + EXTENSION_PNG));
+        cardStatusIcons.put(PCSCEidController.STATE.EID_PRESENT, ImageUtilities.getIcon(this.getClass(), ICONS + PCSCEidController.STATE.EID_PRESENT + EXTENSION_PNG));
+        cardStatusIcons.put(PCSCEidController.STATE.FILE_LOADING, ImageUtilities.getIcon(this.getClass(), ICONS + PCSCEidController.STATE.FILE_LOADING + EXTENSION_PNG));
+        cardStatusIcons.put(PCSCEidController.STATE.FILE_LOADED, ImageUtilities.getIcon(this.getClass(), ICONS + PCSCEidController.STATE.FILE_LOADED + EXTENSION_PNG));
+        cardStatusIcons.put(PCSCEidController.STATE.EID_YIELDED, ImageUtilities.getIcon(this.getClass(), ICONS + PCSCEidController.STATE.EID_YIELDED + EXTENSION_PNG));
     }
 
     private void initTexts()
     {
-        cardStatusTexts = new EnumMap<EidController.STATE, String>(EidController.STATE.class);
-        activityTexts = new EnumMap<EidController.ACTIVITY, String>(EidController.ACTIVITY.class);
+        cardStatusTexts = new EnumMap<PCSCEidController.STATE, String>(PCSCEidController.STATE.class);
+        activityTexts = new EnumMap<PCSCEidController.ACTIVITY, String>(PCSCEidController.ACTIVITY.class);
     }
 
     public void setDynamicLocale(Locale locale)
@@ -460,6 +459,7 @@ public class BelgianEidViewer extends javax.swing.JFrame implements View, Observ
         cardPanel.setDynamicLocale(locale);
         certificatesPanel.setDynamicLocale(locale);
         identityPanel.setDynamicLocale(locale);
+        eid.setLocale(locale);
         updateVisibleState();                       // to update the status strings
     }
     
@@ -495,6 +495,7 @@ public class BelgianEidViewer extends javax.swing.JFrame implements View, Observ
             JOptionPane.showMessageDialog(null, new AboutPanel(),bundle.getString("about.Action.text"),JOptionPane.PLAIN_MESSAGE);
         }
     }
+    
     private class PreferencesAction extends DynamicLocaleAbstractAction
     {
         public PreferencesAction(String text)
@@ -509,23 +510,12 @@ public class BelgianEidViewer extends javax.swing.JFrame implements View, Observ
             
             if(answer==JOptionPane.OK_OPTION)
             {
-               if(preferencesPanel.getUseProxy())
-               {
-                   ViewerPrefs.setUseHTTPProxy(true);
-                   ViewerPrefs.setHTTPProxyHost(preferencesPanel.getHttpProxyHost());
-                   ViewerPrefs.setHTTPProxyPort(preferencesPanel.getHttpProxyPort());
-               }
-               else
-               {
-                   ViewerPrefs.setUseHTTPProxy(false);
-               }
-            }
-            
-            if (ViewerPrefs.getUseHTTPProxy())
-                trustServiceController.setProxy(ViewerPrefs.getHTTPProxyHost(), ViewerPrefs.getHTTPProxyPort());
-            else
-                trustServiceController.setProxy(null, 0);
-        }
+               ViewerPrefs.setProxyType(preferencesPanel.getHTTPProxyType());
+               ViewerPrefs.setSpecificProxyHost(preferencesPanel.getHttpProxyHost());
+               ViewerPrefs.setSpecificProxyPort(preferencesPanel.getHttpProxyPort());
+               setTrustServiceProxy();
+            } 
+        }   
     }
     
 
@@ -633,6 +623,7 @@ public class BelgianEidViewer extends javax.swing.JFrame implements View, Observ
             EidFilePreviewAccessory preview = new EidFilePreviewAccessory(bundle);
             fileChooser.setAccessory(preview);
             fileChooser.addPropertyChangeListener(preview);
+            fileChooser.revalidate();
 
             if (fileChooser.showOpenDialog(BelgianEidViewer.this) == JFileChooser.APPROVE_OPTION)
             {
@@ -698,6 +689,15 @@ public class BelgianEidViewer extends javax.swing.JFrame implements View, Observ
             target.setDynamicLocale(locale);
         }
     }
+    
+    private void setTrustServiceProxy()
+    {
+        Proxy proxyToUse=ViewerPrefs.getProxy();
+        if(proxyToUse!=Proxy.NO_PROXY)
+            trustServiceController.setProxy(ProxyUtils.getHostName(proxyToUse),ProxyUtils.getPort(proxyToUse));
+        else
+            trustServiceController.setProxy(null, 0);
+    }
 
     /* ------------------------ Interaction meant for Applets ---------------------------------------------------------------- */
     public void addDetailMessage(String detailMessage)
@@ -707,7 +707,7 @@ public class BelgianEidViewer extends javax.swing.JFrame implements View, Observ
 
     public void setStatusMessage(Status status, MESSAGE_ID messageId)
     {
-        String message = coreMessages.getMessage(messageId);
+        String message = eid.getMessageString(messageId);
         logger.info(message);
     }
 

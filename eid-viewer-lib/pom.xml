@@ -21,12 +21,12 @@
         <dependency>
             <groupId>be.fedict.eid-applet</groupId>
             <artifactId>eid-applet-core</artifactId>
-            <version>1.0.4.Beta4</version>
+            <version>1.0.4-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>be.fedict.eid-applet</groupId>
             <artifactId>eid-applet-service</artifactId>
-            <version>1.0.4.Beta4</version>
+            <version>1.0.4-SNAPSHOT</version>
         </dependency>
           <dependency>
             <groupId>be.fedict.eid-trust-service</groupId>
@@ -39,6 +39,13 @@
             <artifactId>eid-trust-service-xkms2-ws</artifactId>
             <version>1.0.0.RC10</version>
         </dependency>
+        
+        <dependency>
+            <groupId>org.simpleframework</groupId>
+            <artifactId>simple-xml</artifactId>
+            <version>2.4.1</version>
+        </dependency>
+ 
     </dependencies>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
