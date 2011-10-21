@@ -18,8 +18,6 @@
 package be.fedict.eidviewer.lib;
 
 import be.fedict.eid.applet.Messages.MESSAGE_ID;
-import java.lang.reflect.Constructor;
-import be.fedict.eid.applet.sc.PcscEidSpi;
 import be.fedict.eid.applet.Messages;
 import be.fedict.eid.applet.View;
 import be.fedict.eid.applet.sc.PcscEid;
@@ -49,7 +47,7 @@ public class PCSCEid
     private final View                      view;
     private Messages                        messages;
     private ResourceBundle                  bundle;
-    private final PcscEidSpi                pcscEidImpl;
+    private final PcscEid                   pcscEidImpl;
     private Map<byte[], byte[]>             fileCache;
     private Map<byte[], X509Certificate>    certCache;
 
@@ -57,50 +55,15 @@ public class PCSCEid
     {
         this.view = view;
         initI18N(locale);
-        if (!System.getProperty("java.version").startsWith("1.5"))
+        pcscEidImpl = new PcscEid(view, messages);
+        pcscEidImpl.addObserver(new Observer()
         {
-            /*
-             * Java 1.6 and later. Loading the PcscEid class via reflection
-             * avoids a hard reference to Java 1.6 specific code. This is
-             * required in order to be able to let a Java 1.5 runtime load this
-             * Controller class without exploding on unsupported 1.6 types.
-             */
-            try
+            public void update(Observable o, Object o1)
             {
-                Class<? extends PcscEidSpi> pcscEidClass = (Class<? extends PcscEidSpi>) Class.forName("be.fedict.eid.applet.sc.PcscEid");
-                Constructor<? extends PcscEidSpi> pcscEidConstructor = pcscEidClass.getConstructor(View.class, Messages.class);
-                pcscEidImpl = pcscEidConstructor.newInstance(view, messages);
-            }
-            catch (Exception e)
-            {
-                String msg = "error loading PC/SC eID component: " + e.getMessage();
-                this.view.addDetailMessage(msg);
-                throw new RuntimeException(msg, e);
-            }
-
-            pcscEidImpl.addObserver(new Observer()
-            {
-                public void update(Observable o, Object o1)
-                {
-                    logger.log(Level.FINEST, "update [{0},{1}]", new Object[]{o, o1});
-                } 
-            });   
-        }
-        else
-        {
-            /*
-             * No PC/SC Java 6 available.
-             */
-            pcscEidImpl = null;
-        }
-
-        if (pcscEidImpl == null)
-        {
-            String msg = "no PKCS11 interface available";
-            this.view.addDetailMessage(msg);
-            throw new RuntimeException(msg);
-        }
-
+                logger.log(Level.FINEST, "update [{0},{1}]", new Object[]{o, o1});
+            } 
+        });   
+       
         fileCache = new HashMap<byte[], byte[]>();
         certCache = new HashMap<byte[], X509Certificate>();
     }

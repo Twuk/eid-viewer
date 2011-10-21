@@ -46,6 +46,7 @@ import be.fedict.eidviewer.lib.file.gui.EidFileView;
 import be.fedict.eidviewer.gui.helper.ImageUtilities;
 import be.fedict.eidviewer.gui.helper.ProxyUtils;
 import be.fedict.eidviewer.lib.PCSCEid;
+import be.fedict.eidviewer.lib.file.helper.Version35LocalePrefs;
 import java.awt.Component;
 import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
@@ -464,7 +465,13 @@ public class BelgianEidViewer extends javax.swing.JFrame implements View, Observ
         certificatesPanel.setDynamicLocale(locale);
         identityPanel.setDynamicLocale(locale);
         eid.setLocale(locale);
-        updateVisibleState();                       // to update the status strings
+        
+        // to update the status strings
+        updateVisibleState(); 
+        
+        // also set this in Version 3.x.y-style preferences, to make sure
+        // other eID software picks up the language choice
+        Version35LocalePrefs.writeUserLocaleChoice(locale);
     }
     
     private abstract class DynamicLocaleAbstractAction extends AbstractAction

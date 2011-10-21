@@ -21,12 +21,12 @@
         <dependency>
             <groupId>be.fedict.eid-applet</groupId>
             <artifactId>eid-applet-core</artifactId>
-            <version>1.0.4-SNAPSHOT</version>
+            <version>1.0.4.Beta6</version>
         </dependency>
         <dependency>
             <groupId>be.fedict.eid-applet</groupId>
             <artifactId>eid-applet-service</artifactId>
-            <version>1.0.4-SNAPSHOT</version>
+            <version>1.0.4.Beta6</version>
         </dependency>
           <dependency>
             <groupId>be.fedict.eid-trust-service</groupId>
