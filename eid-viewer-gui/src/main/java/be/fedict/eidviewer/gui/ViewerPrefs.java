@@ -21,11 +21,9 @@ package be.fedict.eidviewer.gui;
 import be.fedict.eidviewer.gui.helper.ProxyUtils;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
-import java.net.URISyntaxException;
 import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.prefs.Preferences;
 
 /**
@@ -193,8 +191,13 @@ public class ViewerPrefs
 
     public static String getFullVersion()
     {
+        return "eID Viewer " + getVersion();
+    }
+    
+    public static String getVersion()
+    {
         ResourceBundle bundle=ResourceBundle.getBundle("be/fedict/eidviewer/gui/resources/Version");
-        return "eID Viewer " + bundle.getString("version");
+        return bundle.getString("version");
     }
     
     public static Proxy getProxy()
