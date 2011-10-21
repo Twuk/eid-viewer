@@ -56,7 +56,7 @@
                                 <fileVersion>${project.version}.0</fileVersion>
                                 <txtFileVersion>eID Viewer v${project.version}.0</txtFileVersion>
                                 <fileDescription>eID Viewer</fileDescription>
-                                <copyright>Copyright (C) 2010 FedICT</copyright>
+                                <copyright>Copyright (C) 2010-2011 FedICT</copyright>
                                 <productVersion>${project.version}.0</productVersion>
                                 <txtProductVersion>eID Viewer v${project.version}.0</txtProductVersion>
                                 <productName>eID Viewer</productName>
