@@ -40,9 +40,9 @@ public class Version35PrefsFile
             logger.finest("Using GNU/Linux style config file");
             prefsFile=getGNULinuxConfigFile();
 		}
-		else if(osName.startsWith("Darwin"))
+		else if(osName.startsWith("Mac"))
 		{
-			logger.finest("Using Darwin style config file");
+			logger.finest("Using OSX style config file");
             prefsFile=getDarwinConfigFile();
 		}
     }
