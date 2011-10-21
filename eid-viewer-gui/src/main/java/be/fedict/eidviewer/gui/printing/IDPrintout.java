@@ -57,11 +57,11 @@ public class IDPrintout implements Printable,ImageObserver
     private static final String             FONT = "Lucida";
     private static final IdentityAttribute  SEPARATOR = null;
     
-    private ResourceBundle  bundle;
-    private DateFormat      dateFormat;
-    private Identity        identity;
-    private Address         address;
-    private Image           photo, coatOfArms;
+    private ResourceBundle                  bundle;
+    private DateFormat                      dateFormat;
+    private Identity                        identity;
+    private Address                         address;
+    private Image                           photo,coatOfArms;
 
     public IDPrintout()
     {
@@ -266,6 +266,7 @@ public class IDPrintout implements Printable,ImageObserver
 
         addIdAttribute(idAttributes, "cardNumberLabel",     TextFormatHelper.formatCardNumber(identity.getCardNumber()));
         addIdAttribute(idAttributes, "placeOfIssueLabel",   identity.getCardDeliveryMunicipality());
+        addIdAttribute(idAttributes, "chipNumberLabel",     identity.getChipNumber());
         addIdAttribute(idAttributes, "validFromLabel",      dateFormat.format(identity.getCardValidityDateBegin().getTime()));
         addIdAttribute(idAttributes, "validUntilLabel",     dateFormat.format(identity.getCardValidityDateEnd().getTime()));
 
