@@ -103,7 +103,6 @@ public class EidFilePreviewAccessory extends JPanel implements PropertyChangeLis
     public EidData setIdentity(Identity identity)
     {
         nameLabel.setText(identity.getFirstName() + " " + identity.getName());
-        nameLabel.setEnabled(true);
         return this;
     }
     

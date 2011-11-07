@@ -298,11 +298,6 @@ public class IDPrintout implements Printable,ImageObserver
         return true;
     }
 
-    public void setDynamicLocale(Locale locale)
-    {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
     private class IdentityAttribute
     {
         private String label;

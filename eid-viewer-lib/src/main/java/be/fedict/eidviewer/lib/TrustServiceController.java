@@ -18,7 +18,6 @@
 
 package be.fedict.eidviewer.lib;
 
-import be.fedict.eidviewer.lib.X509CertificateChainAndTrust;
 import be.fedict.trust.client.XKMS2Client;
 import be.fedict.trust.client.exception.RevocationDataNotFoundException;
 import be.fedict.trust.client.exception.TrustDomainNotFoundException;
@@ -144,7 +143,19 @@ public class TrustServiceController extends Observable implements Runnable
                     chain.setValidating();
                     logger.log(Level.INFO,"Validating {0}", new Object[] {chain.toString()});
                     
-                    trustServiceClient.validate(chain.getTrustDomain(), chain.getCertificates(), true);
+                    if(System.getProperty("os.name").startsWith("Linux"))
+                    {
+                        logger.finest("Multithreaded proxy detection workaround enabled.");
+                        logger.finest("See https://lists.launchpad.net/openjdk/msg06752.html");
+                        synchronized(trustServiceClient)
+                        {
+                            trustServiceClient.validate(chain.getTrustDomain(), chain.getCertificates(), true);
+                        }
+                    }
+                    else
+                    {
+                        trustServiceClient.validate(chain.getTrustDomain(), chain.getCertificates(), true);
+                    }
                     
                     logger.log(Level.INFO,"Trusted");
                     chain.setTrusted();

@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 import be.fedict.eid.applet.service.impl.tlv.TlvParser;
+import be.fedict.eidviewer.lib.file.helper.TextFormatHelper;
 import java.awt.Image;
 import java.io.ByteArrayInputStream;
 import java.security.cert.CertificateFactory;
@@ -89,7 +90,9 @@ public class PCSCEid
     public Identity getIdentity() throws Exception
     {
         logger.fine("getIdentity");
-        return TlvParser.parse(getFile(PcscEid.IDENTITY_FILE_ID), Identity.class);
+        Identity identity=TlvParser.parse(getFile(PcscEid.IDENTITY_FILE_ID), Identity.class);
+        TextFormatHelper.setFirstNamesFromStrings(identity, identity.getFirstName(), identity.getMiddleName());
+        return identity;
     }
 
     public Image getPhoto() throws Exception

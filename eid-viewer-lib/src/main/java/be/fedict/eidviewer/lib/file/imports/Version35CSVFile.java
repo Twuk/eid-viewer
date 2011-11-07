@@ -140,7 +140,10 @@ public class Version35CSVFile
             }
 
             if(identity!=null)
+            {
+                TextFormatHelper.setFirstNamesFromStrings(identity, identity.getFirstName(), identity.getMiddleName());
                 eidData.setIdentity(identity);
+            }
 
             if(address!=null)
                 eidData.setAddress(address);

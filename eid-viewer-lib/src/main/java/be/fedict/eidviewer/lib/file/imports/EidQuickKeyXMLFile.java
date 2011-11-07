@@ -23,6 +23,7 @@ import be.fedict.eid.applet.service.Identity;
 import be.fedict.eid.applet.service.impl.tlv.TlvParser;
 import be.fedict.eidviewer.lib.EidData;
 import be.fedict.eidviewer.lib.X509Utilities;
+import be.fedict.eidviewer.lib.file.helper.TextFormatHelper;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -146,9 +147,13 @@ public class EidQuickKeyXMLFile extends DefaultHandler
             switch (stage)
             {
                 case IDFILE:
+                {
                     logger.fine("Setting Identity");
-                    eidData.setIdentity(TlvParser.parse(data, Identity.class));
-                    break;
+                    Identity identity=TlvParser.parse(data, Identity.class);
+                    TextFormatHelper.setFirstNamesFromStrings(identity, identity.getFirstName(), identity.getMiddleName());
+                    eidData.setIdentity(identity);
+                }
+                break;
 
                 case ADDRFILE:
                     logger.fine("Setting Address");

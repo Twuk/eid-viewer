@@ -56,8 +56,8 @@ public final class Version4XMLFileIdentity
     private String name;
     @Element(name="firstname")
     private String firstName;
-    @Element(name="middlename")
-    private String middleName;
+    @Element(name="middlenames",required=false)
+    private String middleNames;
     @Element(name="nationality")
     private String nationality;
     @Element(name="placeofbirth")
@@ -84,8 +84,12 @@ public final class Version4XMLFileIdentity
         setDateOfBirth(dateFormat.format(eidIdentity.getDateOfBirth().getTime()));
         setGender(eidIdentity.getGender()==Gender.MALE?"male":"female");
 
-        if(eidIdentity.getNobleCondition() != null && (!eidIdentity.getNobleCondition().equals("")))
-            setNobleCondition(eidIdentity.getNobleCondition());
+        if(eidIdentity.getNobleCondition()!=null)
+        {
+            String nobleConditionString=eidIdentity.getNobleCondition().trim();
+            if(!nobleConditionString.equals(""))
+                setNobleCondition(nobleConditionString);
+        }
            
         if(eidIdentity.getSpecialStatus() != null && eidIdentity.getSpecialStatus() != SpecialStatus.NO_STATUS)
         {
@@ -100,14 +104,21 @@ public final class Version4XMLFileIdentity
             setSpecialStatus(TextFormatHelper.join(specials, ","));
         }
         
-        if(eidIdentity.getDuplicate() != null && (!eidIdentity.getDuplicate().equals("")))
-                setDuplicate(eidIdentity.getDuplicate());
+        if(eidIdentity.getDuplicate() != null)
+        {
+            String duplicateString=eidIdentity.getDuplicate().trim();
+            if (!duplicateString.equals(""))
+                setDuplicate(duplicateString);
+        }
 
-        setName(                eidIdentity.getName());
-        setFirstName(           eidIdentity.getFirstName());
-        setMiddleName(          eidIdentity.getMiddleName());
-        setNationality(         eidIdentity.getNationality());
-        setPlaceOfBirth(        eidIdentity.getPlaceOfBirth());
+        setName(                eidIdentity.getName().trim());
+        setFirstName(           eidIdentity.getFirstName().trim());
+        
+        if(eidIdentity.getMiddleName()!=null)
+            setMiddleNames(eidIdentity.getMiddleName().trim());
+        
+        setNationality(         eidIdentity.getNationality().trim());
+        setPlaceOfBirth(        eidIdentity.getPlaceOfBirth().trim());
         setPhotoJPEG(           eidPhoto);
     }
 
@@ -134,7 +145,7 @@ public final class Version4XMLFileIdentity
 
         eidIdentity.name=getName();
         eidIdentity.firstName=getFirstName();
-        eidIdentity.middleName=getMiddleName();
+        eidIdentity.middleName=getMiddleNames();
         eidIdentity.nationality=getNationality();
         eidIdentity.placeOfBirth=getPlaceOfBirth();
     }
@@ -161,7 +172,8 @@ public final class Version4XMLFileIdentity
 
     public void setDuplicate(String duplicate)
     {
-        this.duplicate = duplicate;
+        if(duplicate!=null)
+            this.duplicate = duplicate;
     }
 
     public String getFirstName()
@@ -184,14 +196,15 @@ public final class Version4XMLFileIdentity
         this.gender = gender;
     }
 
-    public String getMiddleName()
+    public String getMiddleNames()
     {
-        return middleName;
+        return middleNames;
     }
 
-    public void setMiddleName(String middleName)
+    public void setMiddleNames(String middleNames)
     {
-        this.middleName = middleName;
+        if(middleNames!=null)
+            this.middleNames = middleNames;
     }
 
     public String getName()
@@ -231,7 +244,8 @@ public final class Version4XMLFileIdentity
 
     public void setNobleCondition(String nobleCondition)
     {
-        this.nobleCondition = nobleCondition;
+        if(nobleCondition!=null)
+            this.nobleCondition = nobleCondition;
     }
 
     public String getPlaceOfBirth()
@@ -251,7 +265,8 @@ public final class Version4XMLFileIdentity
 
     public void setSpecialStatus(String specialStatus)
     {
-        this.specialStatus = specialStatus;
+        if(specialStatus!=null)
+            this.specialStatus = specialStatus;
     }
 
     public String getPhoto()
