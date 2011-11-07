@@ -47,9 +47,9 @@ public final class Version4XMLFileAddress
 
     public void fromAddress(Address eidAddress)
     {
-        setStreetAndNumber(eidAddress.getStreetAndNumber());
-        setZip(eidAddress.getZip());
-        setMunicipality(eidAddress.getMunicipality());
+        setStreetAndNumber(eidAddress.getStreetAndNumber().trim());
+        setZip(eidAddress.getZip().trim());
+        setMunicipality(eidAddress.getMunicipality().trim());
     }
 
     public void toAddress(Address eidAddress)

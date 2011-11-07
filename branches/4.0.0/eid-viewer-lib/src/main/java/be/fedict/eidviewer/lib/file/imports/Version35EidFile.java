@@ -24,6 +24,7 @@ import be.fedict.eid.applet.service.Identity;
 import be.fedict.eid.applet.service.impl.tlv.TlvParser;
 import be.fedict.eidviewer.lib.EidData;
 import be.fedict.eidviewer.lib.X509CertificateChainAndTrust;
+import be.fedict.eidviewer.lib.file.helper.TextFormatHelper;
 import be.fedict.trust.client.TrustServiceDomains;
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -46,20 +47,10 @@ public class Version35EidFile
 {
     private static final Logger logger=Logger.getLogger(Version35EidFile.class.getName());
     
-    private static final byte BEID_TLV_TAG_VERSION = 0x00;
-    private static final byte BEID_TLV_TAG_FILE_ID = 0x01;
-    private static final byte BEID_TLV_TAG_FILE_IDSIGN = 0x02;
-    private static final byte BEID_TLV_TAG_FILE_ADDR = 0x03;
-    private static final byte BEID_TLV_TAG_FILE_ADDRSIGN = 0x04;
-    private static final byte BEID_TLV_TAG_FILE_PHOTO = 0x05;
-    private static final byte BEID_TLV_TAG_FILE_CARDINFO = 0x06;
-    private static final byte BEID_TLV_TAG_FILE_TOKENINFO = 0x07;
-    private static final byte BEID_TLV_TAG_FILE_RRN = 0x08;
-    private static final byte BEID_TLV_TAG_FILE_CHALLENGE = 0x09;
-    private static final byte BEID_TLV_TAG_FILE_CHALLENGE_RESPONSE = 0x0A;
-    private static final byte BEID_TLV_TAG_CARDTYPE = 0x0B;
-    private static final byte BEID_TLV_TAG_FILE_CERTS = 0x0C;
-    private static final byte BEID_TLV_TAG_FILE_PINS = 0x0D;
+    private static final byte BEID_TLV_TAG_FILE_ID      = 0x01;
+    private static final byte BEID_TLV_TAG_FILE_ADDR    = 0x03;
+    private static final byte BEID_TLV_TAG_FILE_PHOTO   = 0x05;
+    private static final byte BEID_TLV_TAG_FILE_CERTS   = 0x0C;
 
     public static void load(File file, EidData eidData) throws CertificateException, FileNotFoundException, IOException
     {
@@ -76,13 +67,17 @@ public class Version35EidFile
 
         while ((entry = TLVEntry.next(fis)) != null)
         {
-            logger.log(Level.FINEST,"L1:Type["+entry.tag+"]:Len["+entry.length+"]");
+            logger.log(Level.FINEST, "L1:Type[{0}]:Len[{1}]", new Object[]{entry.tag, entry.length});
 
             switch (entry.tag)
             {
                 case BEID_TLV_TAG_FILE_ID:
-                    eidData.setIdentity(TlvParser.parse(entry.data, Identity.class));
-                    break;
+                {
+                    Identity identity=TlvParser.parse(entry.data, Identity.class);
+                    TextFormatHelper.setFirstNamesFromStrings(identity, identity.getFirstName(), identity.getMiddleName());
+                    eidData.setIdentity(identity);
+                }
+                break;
 
                 case BEID_TLV_TAG_FILE_ADDR:
                     eidData.setAddress(TlvParser.parse(entry.data, Address.class));
@@ -100,7 +95,7 @@ public class Version35EidFile
 
                     while ((certEntry = TLVEntry.next(bis)) != null)
                     {
-                        logger.log(Level.FINEST,"L2:Type["+certEntry.tag+"]:Len["+certEntry.length+"]");
+                        logger.log(Level.FINEST, "L2:Type[{0}]:Len[{1}]", new Object[]{certEntry.tag, certEntry.length});
 
                         switch (certEntry.tag)
                         {
@@ -114,7 +109,7 @@ public class Version35EidFile
 
                                 while ((certEntry2 = TLVEntry.next(bis2)) != null)
                                 {
-                                    logger.log(Level.FINEST,"L3:Type["+certEntry2.tag+"]:Len["+certEntry2.length+"]");
+                                    logger.log(Level.FINEST, "L3:Type[{0}]:Len[{1}]", new Object[]{certEntry2.tag, certEntry2.length});
 
                                     switch (certEntry2.tag)
                                     {

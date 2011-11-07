@@ -150,8 +150,10 @@ public class Version35XMLFile extends DefaultHandler
                  identity.documentType=DocumentType.toDocumentType(discreteValues.get("type").getBytes());
                  identity.duplicate=discreteValues.get("duplicata");
                  identity.gender=discreteValues.get("gender").equals("M")?Gender.MALE:Gender.FEMALE;
+                 
                  TextFormatHelper.setFirstNamesFromString(identity, discreteValues.get("name"));
                  identity.name=discreteValues.get("surname");
+                 
                  identity.nationalNumber=discreteValues.get("national_nr");
                  identity.nationality=discreteValues.get("nationality");
                  identity.nobleCondition=discreteValues.get("nobility");

@@ -93,36 +93,59 @@ public class TextFormatHelper
         return formatted.toString();
     }
     
+    public static String createFullNameString(String firstName, String givenNames, String familyName)
+    {
+        StringBuilder builder=new StringBuilder(firstName);
+        
+        if(givenNames!=null)
+        {
+            builder.append(' ');
+            builder.append(givenNames);
+        }
+        
+        if(familyName!=null)
+        {
+            builder.append(' ');
+            builder.append(familyName);
+        }
+        
+        return builder.toString();
+    }
+    
+    public static int setFirstNamesFromStrings(Identity identity, String givenNames, String firstLetterOf3rdGivenName)
+    {
+        StringBuilder builder=new StringBuilder(givenNames);
+        
+        if(firstLetterOf3rdGivenName!=null)
+        {
+            builder.append(' ');
+            builder.append(firstLetterOf3rdGivenName);
+        }
+        
+        return setFirstNamesFromString(identity,builder.toString());
+    }
+    
     public static int setFirstNamesFromString(Identity identity, String names)
     {
         String[] nameParts = names.split(" ");
-        switch (nameParts.length)
+        if(nameParts.length==1)
         {
-            case 1:
-                logger.finest("First Name: One Token -> firstname, no middleName");
-                identity.firstName = nameParts[0];
-                break;
+            logger.finest("First Name: One Token -> firstname, no middleName");
+            identity.firstName = nameParts[0];  
+        }
+        else
+        {
+            logger.finest("First Name: Two Or More Tokens -> one in firstname, others in middleName");
+            identity.firstName = nameParts[0];
 
-            case 2:
-                logger.finest("First Name: Two Tokens -> one in firstName, second in middleName");
-                identity.firstName = nameParts[0];
-                identity.middleName = nameParts[1];
-                break;
-
-            default:
+            StringBuilder middleNames = new StringBuilder();
+            for (int i = 1; i <= nameParts.length - 1; i++)
             {
-                logger.finest("First Name: More Than Two Tokens -> all but last part in firstname, last part in middleName");
-                StringBuilder firstName = new StringBuilder();
-                for (int i = 0; i <= nameParts.length - 2; i++)
-                {
-                    firstName.append(nameParts[i]);
-                    firstName.append(' ');
-                }
-
-                identity.firstName = firstName.toString().trim();
-                identity.middleName = nameParts[nameParts.length - 1];
+                middleNames.append(nameParts[i]);
+                middleNames.append(' ');
             }
-            break;
+
+            identity.middleName = middleNames.toString().trim();
         }
         
         return nameParts.length;
