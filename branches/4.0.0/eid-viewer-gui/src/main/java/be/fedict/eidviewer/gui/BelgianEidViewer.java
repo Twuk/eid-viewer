@@ -48,11 +48,13 @@ import be.fedict.eidviewer.gui.helper.ProxyUtils;
 import be.fedict.eidviewer.lib.PCSCEid;
 import be.fedict.eidviewer.lib.file.helper.Version35LocalePrefs;
 import java.awt.Component;
+import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
 import java.awt.print.PrinterException;
 import java.awt.print.PrinterJob;
 import java.net.Proxy;
+import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.Locale;
 import java.util.Observable;
@@ -374,6 +376,18 @@ public class BelgianEidViewer extends javax.swing.JFrame implements View, Observ
         helpMenu.add(showLogMenuItem);
         menuBar.add(helpMenu);
         setJMenuBar(menuBar);
+        
+        ArrayList<Image> imageList = new ArrayList<Image>();
+        imageList.add(ImageUtilities.getIcon(this.getClass(), ICONS + "logo_64.png").getImage());
+        imageList.add(ImageUtilities.getIcon(this.getClass(), ICONS + "logo_48.png").getImage());
+        imageList.add(ImageUtilities.getIcon(this.getClass(), ICONS + "logo_32.png").getImage());
+        imageList.add(ImageUtilities.getIcon(this.getClass(), ICONS + "logo_24.png").getImage());
+        imageList.add(ImageUtilities.getIcon(this.getClass(), ICONS + "logo_20.png").getImage());
+        imageList.add(ImageUtilities.getIcon(this.getClass(), ICONS + "logo_16.png").getImage());
+        setIconImages(imageList);
+        
+        setTitle("eID Viewer");
+        
         pack();
     }
 
