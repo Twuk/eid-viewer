@@ -132,7 +132,7 @@ public class EidFiles
             if (!file.canRead())
                 return 0;
 
-            if ((!file.getName().endsWith(".xml")) && (!file.getName().endsWith(".XML")))
+            if (!file.getName().toLowerCase().endsWith(".xml"))
                 return 0;
 
             byte[] buffer = new byte[512];
@@ -188,7 +188,7 @@ public class EidFiles
             if (!file.canRead())
                 return 0;
 
-            if ((!file.getName().endsWith(".csv")) && (!file.getName().endsWith(".CSV")))
+            if (!file.getName().toLowerCase().endsWith(".csv"))
                 return 0;
 
             byte[] buffer = new byte[16];
@@ -239,7 +239,7 @@ public class EidFiles
         if (!file.canRead())
             return false;
 
-        if ((!file.getName().endsWith(".eid")) && (!file.getName().endsWith(".EID")))
+        if (!file.getName().toLowerCase().endsWith(".eid"))
             return false;
 
         try

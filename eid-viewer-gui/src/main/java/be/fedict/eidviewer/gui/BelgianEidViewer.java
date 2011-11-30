@@ -647,7 +647,7 @@ public class BelgianEidViewer extends javax.swing.JFrame implements View, Observ
         }
     }
 
-    private class SaveFileAction extends DynamicLocaleAbstractAction
+ private class SaveFileAction extends DynamicLocaleAbstractAction
     {
         public SaveFileAction(String text, Integer mnemonic)
         {
@@ -659,12 +659,43 @@ public class BelgianEidViewer extends javax.swing.JFrame implements View, Observ
         {
             logger.fine("Save action chosen..");
             final JFileChooser fileChooser = new JFileChooser();
-            if (fileChooser.showSaveDialog(BelgianEidViewer.this) == JFileChooser.APPROVE_OPTION)
+            fileChooser.setAcceptAllFileFilterUsed(false);
+            fileChooser.addChoosableFileFilter(new EidFileFilter(true, false, false, bundle.getString("xmlEIDFiles")));
+            
+            File suggestedFile=null;
+            
+            try
             {
-                eidController.saveToXMLFile(fileChooser.getSelectedFile());
+                suggestedFile=new File(new File(eidController.getIdentity().getNationalNumber() + ".xml").getCanonicalPath());
+                logger.log(Level.FINE, "Suggesting \"{0}\"", suggestedFile.getCanonicalPath());
+                fileChooser.setSelectedFile(suggestedFile);
+            }
+            catch (IOException ex)
+            {
+                // suggested file likely doesn't exist yet but that's OK here. 
+            }
+            
+            if(fileChooser.showSaveDialog(BelgianEidViewer.this) == JFileChooser.APPROVE_OPTION)
+            {
+                try
+                {
+                    File targetFile=fileChooser.getSelectedFile();
+                    if(!targetFile.getCanonicalPath().toLowerCase().endsWith(".xml"))
+                    {
+                        logger.fine("File would not have correct extension, appending \".xml\"");
+                        targetFile=new File(targetFile.getCanonicalPath() + ".xml");
+                    }
+                    
+                    eidController.saveToXMLFile(targetFile);
+                }
+                catch (IOException ex)
+                {
+                    logger.log(Level.SEVERE, "Problem getting Canonical Name For Filename Extension Correction", ex);
+                }
             }
         }
     }
+
 
     private class CloseFileAction extends DynamicLocaleAbstractAction
     {

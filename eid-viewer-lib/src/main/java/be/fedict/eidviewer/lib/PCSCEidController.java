@@ -165,7 +165,8 @@ public class PCSCEidController extends Observable implements Runnable, Observer,
 
         try
         {
-            trustServiceController.validateLater(rrnCertChain);
+            if(rrnCertChain!=null)
+                trustServiceController.validateLater(rrnCertChain);
 
             if(authCertChain!=null)
                 trustServiceController.validateLater(authCertChain);
