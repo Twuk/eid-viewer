@@ -11,9 +11,9 @@
     <groupId>be.fedict.eid-viewer</groupId>
     <artifactId>package</artifactId>
     <version>4.0.0</version>
-    <packaging>pom</packaging>
+    <packaging>jar</packaging>
     <build>
-        <plugins>
+        <plugins> 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
@@ -84,9 +84,60 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin> 
+
+			<plugin>
+                <groupId>org.dstovall</groupId>
+                <artifactId>onejar-maven-plugin</artifactId>
+                <version>1.4.4</version>
+                <executions>
+                    <execution>
+                        <configuration>
+                            <mainClass>be.fedict.eidviewer.gui.BelgianEidViewer</mainClass>
+                            <onejarVersion>0.97</onejarVersion>
+                            <attachToBuild>true</attachToBuild>
+                            <classifier>onejar</classifier>
+                        </configuration>
+                        <goals>
+                            <goal>one-jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
+
+  <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>osxappbundle-maven-plugin</artifactId>
+                <version>1.0-alpha-1</version>
+                <configuration>
+                    <mainClass>be.fedict.eidviewer.gui.BelgianEidViewer</mainClass>
+					<jvmVersion>1.6+</jvmVersion>
+					<javaApplicationStub>${basedir}/src/main/assembly/JavaApplicationStub</javaApplicationStub>
+                    <iconFile>${basedir}/src/main/assembly/eid-viewer.icns</iconFile>
+					<bundleName>eID Viewer</bundleName>
+					<zipFile>${project.build.directory}/eid-viewer.zip</zipFile>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>bundle</goal>
+                        </goals>
+                    </execution>
+               </executions>
+           </plugin>
+
         </plugins>
     </build>
+
+    <pluginRepositories>
+        <pluginRepository>
+            <id>onejar-maven-plugin.googlecode.com</id>
+            <url>http://onejar-maven-plugin.googlecode.com/svn/mavenrepo</url>
+        </pluginRepository>
+    </pluginRepositories>
+
+
     <dependencies>
         <dependency>
             <groupId>be.fedict.eid-viewer</groupId>
