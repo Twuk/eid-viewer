@@ -103,12 +103,12 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin>
+            </plugin> 
 
   <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>osxappbundle-maven-plugin</artifactId>
-                <version>1.0-alpha-1</version>
+                <version>1.0-alpha-2</version>
                 <configuration>
                     <mainClass>be.fedict.eidviewer.gui.BelgianEidViewer</mainClass>
 					<jvmVersion>1.6+</jvmVersion>
@@ -116,6 +116,16 @@
                     <iconFile>${basedir}/src/main/assembly/eid-viewer.icns</iconFile>
 					<bundleName>eID Viewer</bundleName>
 					<zipFile>${project.build.directory}/eid-viewer.zip</zipFile>
+					<dictionaryFile>${basedir}/src/main/assembly/Info.plist.template</dictionaryFile>
+					<additionalResources>
+                        <fileSet>
+                            <directory>${basedir}/src/main/assembly</directory>
+                            <includes>
+                                <include>COPYING</include>
+                                <include>COPYING.LESSER</include>
+                            </includes>
+                        </fileSet>
+                    </additionalResources>
                 </configuration>
                 <executions>
                     <execution>
