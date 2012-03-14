@@ -1,7 +1,7 @@
 #!/bin/bash
 
 SVNREV=$(cat svn_revision)
-MAINVER=$(./configure --version|grep ^eid-viewer|cut -d' ' -f3 | cut -d "-" -f 1)
+MAINVER=$(./configure --version|grep ^eid-viewer|cut -d' ' -f3)
 
 if [ "$MAINVER" == "0.0.0" ]; then 
 	echo "TRUNK"

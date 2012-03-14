@@ -9,7 +9,7 @@ License: LGPL
 Group: Applications/Communications
 URL: http://eid.belgium.be/
 
-Source0: http://dist.apsu.be/eid-mw/viewer/eid-viewer-%{version}-%{revision}.tar.gz
+Source0: http://eidfiles.be/continuous/sources/eid-viewer-%{version}-%{revision}.tar.gz
 Source1: eid-viewer.png
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
@@ -39,7 +39,7 @@ the government's servers.
 
 %{__cat} <<EOF >eid-viewer.sh
 #!/bin/bash
-java -jar %{_datadir}/eid-viewer/eid-viewer-gui-4.0.0-SNAPSHOT.jar
+java -jar %{_datadir}/eid-viewer/eid-viewer.jar
 EOF
 
 %{__cat} <<EOF >eid-viewer.desktop
