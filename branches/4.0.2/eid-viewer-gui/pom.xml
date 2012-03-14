@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <artifactId>eid-viewer</artifactId>
+        <groupId>be.fedict</groupId>
+        <version>4.0.2</version>
+    </parent>
+    <groupId>be.fedict.eid-viewer</groupId>
+    <artifactId>eid-viewer-gui</artifactId>
+    <packaging>jar</packaging>
+    <version>4.0.2</version>
+    <name>eID Viewer GUI</name>
+    <build>
+
+        <!-- filter property files, to add e.g. version number
+             we avoid attempting to filter other file types -->
+
+        <resources>
+           <resource>
+               <directory>src/main/resources</directory>
+               <filtering>true</filtering>
+               <includes>
+                    <include>**/*.properties</include>
+               </includes>
+           </resource>
+           <resource>
+               <directory>src/main/resources</directory>
+               <filtering>false</filtering>
+               <excludes>
+                    <exclude>**/*.properties</exclude>
+               </excludes>
+           </resource>
+        </resources>
+
+        <plugins>
+            <!-- install as shaded jar, to make life easy for installers -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>1.5</version>
+                <configuration>
+                    <transformers>
+                        <!-- set main class -->
+                        <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                            <mainClass>be.fedict.eidviewer.gui.BelgianEidViewer</mainClass>
+                        </transformer>
+                    </transformers>
+                    <filters>
+                        <filter>
+                            <artifact>*:*</artifact>
+                            <excludes>
+                                <!-- exclude signatures, shade plugin alters bytecode, hashes will not match anyway. 
+                                     We'll verify dependencies' signatures in our maven repo, and resign the shaded jar ourselves -->
+                                <exclude>META-INF/*.SF</exclude>
+                                <exclude>META-INF/*.DSA</exclude>
+                                <exclude>META-INF/*.RSA</exclude>
+                            </excludes>
+                        </filter>
+                    </filters>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+    <dependencies>
+        <dependency>
+            <groupId>be.fedict.eid-viewer</groupId>
+            <artifactId>eid-viewer-lib</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
+</project>
