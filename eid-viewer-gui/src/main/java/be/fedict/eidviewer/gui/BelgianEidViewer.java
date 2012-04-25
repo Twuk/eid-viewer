@@ -94,13 +94,15 @@ public class BelgianEidViewer extends javax.swing.JFrame implements View, Observ
     
     private JMenuBar menuBar;
     
-    private JMenu fileMenu;
-    private JMenuItem printMenuItem;
-    private JMenuItem openMenuItem;
-    private JMenuItem saveMenuItem;
-    private JMenuItem closeMenuItem;
-    private JMenuItem preferencesMenuItem;
-    private JMenuItem fileMenuQuitItem;
+    private JMenu 		fileMenu;
+    private JMenuItem 	printMenuItem;
+    private JMenuItem 	openMenuItem;
+    private JMenu 		saveAsMenu;
+    private JMenuItem 		saveAsXMLMenuItem;
+    private JMenuItem 		saveAsCSVMenuItem;
+    private JMenuItem 	closeMenuItem;
+    private JMenuItem 	preferencesMenuItem;
+    private JMenuItem 	fileMenuQuitItem;
     
     private JMenu helpMenu;
     private JMenuItem aboutMenuItem;
@@ -130,7 +132,8 @@ public class BelgianEidViewer extends javax.swing.JFrame implements View, Observ
     private LogPanel logPanel;
     private PrintAction printAction;
     private OpenFileAction openAction;
-    private SaveFileAction saveAction;
+    private SaveFileAsXMLAction saveAsXMLAction;
+    private SaveFileAsCSVAction saveAsCSVAction;
     private CloseFileAction closeAction;
     private AboutAction aboutAction;
     private QuitAction quitAction;
@@ -150,14 +153,15 @@ public class BelgianEidViewer extends javax.swing.JFrame implements View, Observ
     
     private void initActions()
     {
-        printAction     = new PrintAction       ("Print", new Integer(KeyEvent.VK_P));
-        openAction      = new OpenFileAction    ("Open", new Integer(KeyEvent.VK_O));
-        closeAction     = new CloseFileAction   ("Close", new Integer(KeyEvent.VK_W));
-        saveAction      = new SaveFileAction    ("Save As", new Integer(KeyEvent.VK_S));
-        preferencesAction=new PreferencesAction ("Preferences");
-        aboutAction     = new AboutAction       ("About");
-        quitAction      = new QuitAction        ("Quit",new Integer(KeyEvent.VK_Q));
-        showHideLogAction=new ShowHideLogAction ("Show Log",new Integer(KeyEvent.VK_L));
+        printAction     	= new PrintAction       	("Print", new Integer(KeyEvent.VK_P));
+        openAction      	= new OpenFileAction    	("Open", new Integer(KeyEvent.VK_O));
+        closeAction     	= new CloseFileAction   	("Close", new Integer(KeyEvent.VK_W));
+        saveAsXMLAction     = new SaveFileAsXMLAction   ("Save As XML", new Integer(KeyEvent.VK_S));
+        saveAsCSVAction     = new SaveFileAsCSVAction   ("Save As CSV", new Integer(KeyEvent.VK_S));
+        preferencesAction	= new PreferencesAction 	("Preferences");
+        aboutAction     	= new AboutAction       	("About");
+        quitAction      	= new QuitAction        	("Quit",new Integer(KeyEvent.VK_Q));
+        showHideLogAction	= new ShowHideLogAction 	("Show Log",new Integer(KeyEvent.VK_L));
     }
     
     private void logJavaSpecs()
@@ -230,7 +234,12 @@ public class BelgianEidViewer extends javax.swing.JFrame implements View, Observ
             public void run()
             {
                 printAction.setEnabled(eidController.hasIdentity() && eidController.hasAddress() && eidController.hasPhoto() && (PrinterJob.lookupPrintServices().length > 0));
-                saveAction.setEnabled(eidController.hasIdentity() && eidController.hasAddress() && eidController.hasPhoto() && eidController.hasAuthCertChain());
+                
+                boolean safeToSave=eidController.hasIdentity() && eidController.hasAddress() && eidController.hasPhoto() && eidController.hasAuthCertChain();
+                saveAsMenu.setEnabled(safeToSave);
+                saveAsXMLAction.setEnabled(safeToSave);
+                saveAsCSVAction.setEnabled(safeToSave);
+                
                 openAction.setEnabled(eidController.getState() != PCSCEidController.STATE.EID_PRESENT && eidController.getState() != PCSCEidController.STATE.EID_YIELDED);
                 closeAction.setEnabled(eidController.isLoadedFromFile() && (eidController.hasAddress() || eidController.hasPhoto() || eidController.hasAuthCertChain() || eidController.hasSignCertChain()));
                 
@@ -271,7 +280,9 @@ public class BelgianEidViewer extends javax.swing.JFrame implements View, Observ
         
         fileMenu = new JMenu();
         openMenuItem = new JMenuItem();
-        saveMenuItem = new JMenuItem();
+        saveAsMenu = new JMenu();
+        saveAsXMLMenuItem = new JMenuItem();
+        saveAsCSVMenuItem = new JMenuItem();
         closeMenuItem = new JMenuItem();
         preferencesMenuItem = new JMenuItem();
         printMenuItem = new JMenuItem();
@@ -325,10 +336,14 @@ public class BelgianEidViewer extends javax.swing.JFrame implements View, Observ
         openMenuItem.setAction(openAction);
         openMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
         fileMenu.add(openMenuItem);
-
-        saveMenuItem.setAction(saveAction);
-        saveMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
-        fileMenu.add(saveMenuItem);
+        
+        fileMenu.addSeparator();
+        
+        saveAsXMLMenuItem.setAction(saveAsXMLAction);
+        saveAsCSVMenuItem.setAction(saveAsCSVAction);
+        saveAsMenu.add(saveAsXMLMenuItem);
+        saveAsMenu.add(saveAsCSVMenuItem);
+        fileMenu.add(saveAsMenu);
 
         closeMenuItem.setAction(closeAction);
         closeMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_W, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
@@ -401,7 +416,9 @@ public class BelgianEidViewer extends javax.swing.JFrame implements View, Observ
         aboutMenuItem.setText(bundle.getString("about.Action.text"));                               // NOI18N
         quitAction.setName(bundle.getString("quit.Action.text"));                                   // NOI18N
         openAction.setName(bundle.getString("openFile.Action.text"));                               // NOI18N
-        saveAction.setName(bundle.getString("saveFile.Action.text"));                               // NOI18N
+        saveAsMenu.setText(bundle.getString("saveAs"));                       						// NOI18N
+        saveAsXMLAction.setName(bundle.getString("saveXML.Action.text"));                       	// NOI18N
+        saveAsCSVAction.setName(bundle.getString("saveCSV.Action.text"));                       	// NOI18N
         closeAction.setName(bundle.getString("closeFile.Action.text"));                             // NOI18N
         printAction.setName(bundle.getString("print.Action.text"));                                 // NOI18N
         aboutAction.setName(bundle.getString("about.Action.text"));                                 // NOI18N
@@ -625,7 +642,7 @@ public class BelgianEidViewer extends javax.swing.JFrame implements View, Observ
         public void actionPerformed(ActionEvent ae)
         {
             logger.fine("Open action chosen..");
-            final JFileChooser fileChooser = new JFileChooser();
+            final JFileChooser fileChooser = new JFileChooser(ViewerPrefs.getLastOpenLocation());
 
             fileChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
             fileChooser.setAcceptAllFileFilterUsed(false);
@@ -649,15 +666,17 @@ public class BelgianEidViewer extends javax.swing.JFrame implements View, Observ
                 {
                     eidController.loadFromFile(file);
                 }
+                
+                ViewerPrefs.setLastOpenLocation(file.getParentFile());
             }
         }
     }
 
-    private class SaveFileAction extends DynamicLocaleAbstractAction
+    private class SaveFileAsXMLAction extends DynamicLocaleAbstractAction
     {
 		private static final long	serialVersionUID	= -4991039413918478765L;
 
-		public SaveFileAction(String text, Integer mnemonic)
+		public SaveFileAsXMLAction(String text, Integer mnemonic)
         {
             super(text);
             putValue(MNEMONIC_KEY, mnemonic);   
@@ -666,15 +685,16 @@ public class BelgianEidViewer extends javax.swing.JFrame implements View, Observ
         public void actionPerformed(ActionEvent ae)
         {
             logger.fine("Save action chosen..");
-            final JFileChooser fileChooser = new JFileChooser();
+            final JFileChooser fileChooser = new JFileChooser(ViewerPrefs.getLastSaveLocation());
             fileChooser.setAcceptAllFileFilterUsed(false);
             fileChooser.addChoosableFileFilter(new EidFileFilter(true, false, false, bundle.getString("xmlEIDFiles")));
+            fileChooser.setCurrentDirectory(ViewerPrefs.getLastSaveLocation());
             
             File suggestedFile=null;
             
             try
             {
-                suggestedFile=new File(new File(eidController.getIdentity().getNationalNumber() + ".xml").getCanonicalPath());
+            	suggestedFile=(new File(fileChooser.getCurrentDirectory(),eidController.getIdentity().getNationalNumber() + ".xml"));
                 logger.log(Level.FINE, "Suggesting \"{0}\"", suggestedFile.getCanonicalPath());
                 fileChooser.setSelectedFile(suggestedFile);
             }
@@ -700,6 +720,62 @@ public class BelgianEidViewer extends javax.swing.JFrame implements View, Observ
                 {
                     logger.log(Level.SEVERE, "Problem getting Canonical Name For Filename Extension Correction", ex);
                 }
+                
+                ViewerPrefs.setLastSaveLocation(fileChooser.getSelectedFile().getParentFile());
+            }
+        }
+    }
+    
+    private class SaveFileAsCSVAction extends DynamicLocaleAbstractAction
+    {
+		private static final long	serialVersionUID	= -4991039413918478765L;
+
+		public SaveFileAsCSVAction(String text, Integer mnemonic)
+        {
+            super(text);
+            putValue(MNEMONIC_KEY, mnemonic);   
+        }
+        
+        public void actionPerformed(ActionEvent ae)
+        {
+            logger.fine("Save action chosen..");
+            final JFileChooser fileChooser = new JFileChooser();
+            fileChooser.setAcceptAllFileFilterUsed(false);
+            fileChooser.addChoosableFileFilter(new EidFileFilter(false, false, true, bundle.getString("csvEIDFiles")));
+            fileChooser.setCurrentDirectory(ViewerPrefs.getLastSaveLocation());
+            
+            File suggestedFile=null;
+            
+            try
+            {
+                suggestedFile=(new File(fileChooser.getCurrentDirectory(),eidController.getIdentity().getNationalNumber() + ".csv"));
+                logger.log(Level.FINE, "Suggesting \"{0}\"", suggestedFile.getCanonicalPath());
+                fileChooser.setSelectedFile(suggestedFile);
+            }
+            catch (IOException ex)
+            {
+                // suggested file likely doesn't exist yet but that's OK here. 
+            }
+            
+            if(fileChooser.showSaveDialog(BelgianEidViewer.this) == JFileChooser.APPROVE_OPTION)
+            {
+                try
+                {
+                    File targetFile=fileChooser.getSelectedFile();
+                    if(!targetFile.getCanonicalPath().toLowerCase().endsWith(".csv"))
+                    {
+                        logger.fine("File would not have correct extension, appending \".csv\"");
+                        targetFile=new File(targetFile.getCanonicalPath() + ".csv");
+                    }
+                    
+                    eidController.saveToCSVFile(targetFile);
+                }
+                catch (IOException ex)
+                {
+                    logger.log(Level.SEVERE, "Problem getting Canonical Name For Filename Extension Correction", ex);
+                }
+                
+                ViewerPrefs.setLastSaveLocation(fileChooser.getSelectedFile().getParentFile());
             }
         }
     }

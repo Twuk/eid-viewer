@@ -23,6 +23,7 @@ import be.fedict.eidviewer.lib.EidData;
 import be.fedict.eidviewer.lib.X509CertificateChainAndTrust;
 import be.fedict.eidviewer.lib.file.EidFiles;
 import java.io.IOException;
+import java.security.cert.X509Certificate;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.*;
@@ -124,21 +125,25 @@ public class EidFilePreviewAccessory extends JPanel implements PropertyChangeLis
     }
 
     // other stuff from the EidFile Interface we don't need here
-    public EidData setAddress(Address address)                                  { return this; }
-    public EidData setAuthCertChain(X509CertificateChainAndTrust authCertChain) { return this; }
-    public EidData setSignCertChain(X509CertificateChainAndTrust signCertChain) { return this; }
-    public EidData setRRNCertChain(X509CertificateChainAndTrust rrnCertChain)   { return this; }
-    public Identity getIdentity()                                               { return null; }
-    public Address getAddress()                                                 { return null; }
-    public byte[] getPhoto()                                                    { return null; }
-    public X509CertificateChainAndTrust getAuthCertChain()                      { return null; }
-    public X509CertificateChainAndTrust getSignCertChain()                      { return null; }
-    public X509CertificateChainAndTrust getRRNCertChain()                       { return null; }
+    public EidData setAddress(Address address)                                  { return this; 	}
+    public EidData setAuthCertChain(X509CertificateChainAndTrust authCertChain) { return this; 	}
+    public EidData setSignCertChain(X509CertificateChainAndTrust signCertChain) { return this; 	}
+    public EidData setRRNCertChain(X509CertificateChainAndTrust rrnCertChain)   { return this; 	}
+    public Identity getIdentity()                                               { return null; 	}
+    public Address getAddress()                                                 { return null; 	}
+    public byte[] getPhoto()                                                    { return null; 	}
+    public X509CertificateChainAndTrust getAuthCertChain()                      { return null; 	}
+    public X509CertificateChainAndTrust getSignCertChain()                      { return null; 	}
+    public X509CertificateChainAndTrust getRRNCertChain()                       { return null; 	}
+    public X509Certificate getAuthCert()										{ return null;	}
+	public X509Certificate getSignCert()										{ return null;	}
+	public X509Certificate getRRNCert()											{ return null;	}
+	public X509Certificate getCACert()											{ return null;	}
+	public X509Certificate getRootCert()										{ return null;	}
     public boolean hasAddress()                                                 { return false; }
     public boolean hasIdentity()                                                { return false; }
     public boolean hasPhoto()                                                   { return false; }
     public boolean hasAuthCertChain()                                           { return false; }
     public boolean hasSignCertChain()                                           { return false; }
     public boolean hasRRNCertChain()                                            { return false; }
-  
 }

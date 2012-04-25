@@ -118,7 +118,27 @@ public class EidFiles
         }
         catch (Exception ex)
         {
-            logger.log(Level.SEVERE, "Failed To Save To Version 4.x.x XML-Based .eid File", ex);
+            logger.log(Level.SEVERE, "Failed To Save To Version 4.x.x XML-Based eID File", ex);
+        }
+    }
+    
+    public static void saveToCSVFile(File file, EidData eidData)
+    {
+        try
+        {
+            Version35CSVFile version3file=new Version35CSVFile(eidData);
+            				 version3file.fromIdentityAddressPhotoAndCertificates(	eidData.getIdentity(),eidData.getAddress(),eidData.getPhoto(),
+            						 												eidData.getAuthCert(),
+            						 												eidData.getSignCert(),
+            						 												eidData.getCACert(),
+            						 												eidData.getRRNCert(),
+            						 												eidData.getRootCert());
+            
+            Version35CSVFile.toCSV(version3file, new FileOutputStream(file));
+        }
+        catch (Exception ex)
+        {
+            logger.log(Level.SEVERE, "Failed To Save To Version 3.5.x CSV-Based eID File", ex);
         }
     }
 

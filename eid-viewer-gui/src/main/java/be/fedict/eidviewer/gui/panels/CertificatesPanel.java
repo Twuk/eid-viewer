@@ -89,27 +89,16 @@ public class CertificatesPanel extends JPanel implements Observer, TreeSelection
     private static final String                     ICONS = "/be/fedict/eidviewer/gui/resources/icons/";
     private ResourceBundle                          bundle;
     
-    private JCheckBox alwaysValidateCheckbox;
-    private JPanel authCertsPanel;
-    private JPanel certDetailsPanel;
-    private JLabel certificateIcon;
-    private JLabel certsBusyIcon;
-    private JSplitPane certsDetailsSplitPane;
-    private JTree certsTree;
-    private JLabel dn;
-    private JLabel keyUsage;
-    private JLabel keyUsageLabel;
-    private JSeparator keyUsageTrustSeparator;
-    private JLabel spacer;
-    private JLabel trustErrors;
-    private JPanel trustPrefspanel;
-    private JSeparator trustServiceTrustErrorsSeparator;
-    private JLabel trustStatus;
-    private JLabel trustStatusLabel;
-    private JLabel 					validFrom;
-    private JLabel 					validFromLabel;
-    private JLabel 					validUntil;
-    private JLabel 					validUntilLabel;
+    private JCheckBox 				alwaysValidateCheckbox;
+    private JPanel 					authCertsPanel,certDetailsPanel,trustPrefspanel;
+    private JLabel 					certificateIcon,certsBusyIcon;
+    private JSplitPane 				certsDetailsSplitPane;
+    private JTree 					certsTree;
+    private JLabel 					dn,keyUsage,keyUsageLabel;
+    private JSeparator 				keyUsageTrustSeparator;
+    private JLabel 					spacer,trustErrors;
+    private JSeparator 				trustServiceTrustErrorsSeparator;
+    private JLabel 					trustStatus,trustStatusLabel,validFrom,validFromLabel,validUntil,validUntilLabel;
     private JButton 				validateNowButton;
     private JSeparator 				validdUntilKeyUsageSeparator;
     
@@ -171,14 +160,15 @@ public class CertificatesPanel extends JPanel implements Observer, TreeSelection
         if(eidController.getState() == PCSCEidController.STATE.EID_PRESENT || eidController.getState()==PCSCEidController.STATE.EID_YIELDED || eidController.getState()==PCSCEidController.STATE.FILE_LOADED)
         {
             logger.finest("Filling Out Certificate Data..");
+            
+            if(eidController.hasRRNCertChain())
+                addCerts(eidController.getRRNCertChain());
+            
             if(eidController.hasAuthCertChain())
                 addCerts(eidController.getAuthCertChain());
 
             if(eidController.hasSignCertChain())
-                addCerts(eidController.getSignCertChain());
-            
-            if(eidController.hasRRNCertChain())
-                addCerts(eidController.getRRNCertChain());
+                addCerts(eidController.getSignCertChain());  
         }
         else
         {
