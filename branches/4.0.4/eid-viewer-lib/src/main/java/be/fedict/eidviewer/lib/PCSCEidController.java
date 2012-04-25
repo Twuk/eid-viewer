@@ -232,6 +232,11 @@ public class PCSCEidController extends Observable implements Runnable, Observer,
     {
         EidFiles.saveToXMLFile(selectedFile, this);
     }
+    
+    public void saveToCSVFile(File selectedFile)
+    {
+        EidFiles.saveToCSVFile(selectedFile, this);
+    }
 
     public static enum STATE
     {
@@ -883,6 +888,71 @@ public class PCSCEidController extends Observable implements Runnable, Observer,
     		}
     	}
     }
+
+	@Override
+	public X509Certificate getAuthCert()
+	{
+		try
+		{
+			return eid.getAuthCert();
+		}
+		catch (Exception e)
+		{
+			return null;
+		}
+	}
+
+	@Override
+	public X509Certificate getSignCert()
+	{
+		try
+		{
+			return eid.getSignCert();
+		}
+		catch (Exception e)
+		{
+			return null;
+		}
+	}
+
+	@Override
+	public X509Certificate getRRNCert()
+	{
+		try
+		{
+			return eid.getRRNCert();
+		}
+		catch (Exception e)
+		{
+			return null;
+		}
+	}
+
+	@Override
+	public X509Certificate getCACert()
+	{
+		try
+		{
+			return eid.getCitizenCACert();
+		}
+		catch (Exception e)
+		{
+			return null;
+		}
+	}
+
+	@Override
+	public X509Certificate getRootCert()
+	{
+		try
+		{
+			return eid.getRootCACert();
+		}
+		catch (Exception e)
+		{
+			return null;
+		}
+	}
 
 	
 }
