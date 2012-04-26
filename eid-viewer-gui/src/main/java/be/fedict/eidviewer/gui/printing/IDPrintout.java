@@ -148,6 +148,14 @@ public class IDPrintout implements Printable,ImageObserver
         float coatOfArmsWidth=coatOfArms.getWidth(this)/2;
         float photoWidth=photo.getWidth(this)/2;
         float headerSpaceBetweenImages = imageableWidth - (coatOfArmsWidth + photoWidth + (SPACE_BETWEEN_ITEMS * 2));
+        
+        logger.finest(new ToStringBuilder(this,
+                ToStringStyle.MULTI_LINE_STYLE)
+                .append("headerHeight", headerHeight)
+                .append("coatOfArmsWidth", coatOfArmsWidth)
+                .append("photoWidth", photoWidth)
+                .append("headerSpaceBetweenImages", headerSpaceBetweenImages)
+                .toString());
 
         // get localised strings for card type. We'll take a new line every time a ";" is found in the resource
         String[] cardTypeStr = (bundle.getString("type_" + this.identity.getDocumentType().toString()).toUpperCase()).split(";");
@@ -172,7 +180,7 @@ public class IDPrintout implements Printable,ImageObserver
         int fontSize;
         for(fontSize = TITLE_MAXIMAL_FONT_SIZE; (fontSize >= MINIMAL_FONT_SIZE) && (!sizeFound); fontSize--)  // count down slowly until we find one that fits nicely
         {
-            logger.log(Level.FINE, "fontSize={0}", fontSize);
+            logger.log(Level.FINE,"fontSize=" + fontSize + " sizeFound=" + sizeFound);
             graphics2D.setFont(new Font(FONT, Font.PLAIN, fontSize));
             sizeFound = (ImageUtilities.getTotalStringWidth(graphics2D, cardTypeStr) < headerSpaceBetweenImages)
                         && (ImageUtilities.getTotalStringHeight(graphics2D, cardTypeStr) < headerHeight);
@@ -186,6 +194,13 @@ public class IDPrintout implements Printable,ImageObserver
             float cardTypeHeight = cardTypeStr.length * ImageUtilities.getStringHeight(graphics2D);
             float cardTypeBaseLine = ((headerHeight - cardTypeHeight) / 2) + ImageUtilities.getAscent(graphics2D);
             float cardTypeLineHeight = ImageUtilities.getStringHeight(graphics2D);
+            
+            logger.finest(new ToStringBuilder(this,
+                    ToStringStyle.MULTI_LINE_STYLE)
+                    .append("cardTypeHeight", cardTypeHeight)
+                    .append("cardTypeBaseLine", cardTypeBaseLine)
+                    .append("cardTypeLineHeight", cardTypeLineHeight)
+                    .toString());
 
             for (int i = 0; i < cardTypeStr.length; i++)
             {
@@ -217,7 +232,7 @@ public class IDPrintout implements Printable,ImageObserver
         sizeFound = false;
         for (fontSize = MAXIMAL_FONT_SIZE; (fontSize >= MINIMAL_FONT_SIZE) && (!sizeFound); fontSize--)  // count down slowly until we find one that fits nicely
         {
-            logger.log(Level.FINE, "fontSize={0}", fontSize);
+        	logger.log(Level.FINE,"fontSize=" + fontSize + " sizeFound=" + sizeFound);
             graphics2D.setFont(new Font(FONT, Font.PLAIN, fontSize));
 
             widestLabelWidth = 0;
@@ -242,6 +257,14 @@ public class IDPrintout implements Printable,ImageObserver
             if ((totalDataWidth < imageableWidth) && (totalDataHeight < imageableDataHeight))
                 sizeFound = true;
         }
+        
+        logger.finest(new ToStringBuilder(this,
+                ToStringStyle.MULTI_LINE_STYLE)
+        		.append("widestLabelWidth", widestLabelWidth)
+        		.append("widestValueWidth", widestValueWidth)
+                .append("totalDataWidth", totalDataWidth)
+                .append("totalDataHeight", totalDataHeight)
+                .toString());
 
         // unless with extremely small papers, a size should always have been found.
         // draw the identity, addess and date printed information, in 2 columns, centered inside the
@@ -254,6 +277,14 @@ public class IDPrintout implements Printable,ImageObserver
             float dataLineHeight = ImageUtilities.getStringHeight(graphics2D);
             float dataTop =  dataLineHeight+headerHeight + ((imageableDataHeight-totalDataHeight) / 2);
             float lineNumber = 0;
+            
+            logger.finest(new ToStringBuilder(this,
+                    ToStringStyle.MULTI_LINE_STYLE)
+            		.append("labelsLeft", labelsLeft)
+            		.append("valuesLeft", valuesLeft)
+                    .append("dataLineHeight", dataLineHeight)
+                    .append("dataTop", dataTop)
+                    .toString());
 
             for (IdentityAttribute attribute : idAttributes)
             {
