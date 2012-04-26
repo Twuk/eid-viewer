@@ -51,6 +51,7 @@ import be.fedict.eid.applet.service.impl.tlv.DataConvertorException;
 import be.fedict.eid.applet.service.impl.tlv.DateOfBirthDataConvertor;
 import be.fedict.eidviewer.lib.EidData;
 import be.fedict.eidviewer.lib.X509CertificateChainAndTrust;
+import be.fedict.eidviewer.lib.X509Utilities;
 import be.fedict.eidviewer.lib.file.helper.TextFormatHelper;
 import be.fedict.trust.client.TrustServiceDomains;
 
@@ -351,15 +352,11 @@ public class Version35CSVFile
         this.rootCert=rootCert;
     }
     
-    private static String eidBase64Encode(byte[] data)
-    {
-    	Base64 encoder=new Base64(60,new byte[]{' '},false);
-    	return new String(encoder.encode(data));
-    }
+   
     
     public static void X509CertToCSV(X509Certificate certificate, String label, OutputStreamWriter writer) throws Exception
     {
-		writer.write(String.format("%s;1;%s;;",label,eidBase64Encode(certificate.getEncoded())));
+		writer.write(String.format("%s;1;%s;;",label,X509Utilities.eidBase64Encode(certificate.getEncoded())));
     }
     
     public static void toCSV(Version35CSVFile v35File, OutputStream outputStream) throws Exception
@@ -428,7 +425,7 @@ public class Version35CSVFile
         											    // file_id_sign
         											    // file_address
         											    // file_address_sign
-        											    eidBase64Encode(v35File.photo),
+        											    X509Utilities.eidBase64Encode(v35File.photo),
         											    // picturehash
         											    // serial_nr
         											    // component_code
@@ -447,7 +444,7 @@ public class Version35CSVFile
         											    // elec_perso_interface
         											    // challenge
         											    // response
-        											    eidBase64Encode(v35File.rrnCert.getEncoded())
+        											    X509Utilities.eidBase64Encode(v35File.rrnCert.getEncoded())
         											    ));
         					
         // write variable number of certificates

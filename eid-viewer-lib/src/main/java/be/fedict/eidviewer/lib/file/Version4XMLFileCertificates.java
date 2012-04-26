@@ -28,6 +28,8 @@ import java.util.List;
 import org.apache.commons.codec.binary.Base64;
 import org.simpleframework.xml.Element;
 
+import be.fedict.eidviewer.lib.X509Utilities;
+
 /**
  *
  * @author Frank Marien
@@ -44,19 +46,23 @@ public final class Version4XMLFileCertificates
     private String signingCertificate;
     @Element(name="rrn",required=false)
     private String rrnCertificate;
-
-    public Version4XMLFileCertificates(List<X509Certificate> authChain, List<X509Certificate> signChain, List<X509Certificate> rrnChain) throws CertificateEncodingException
-    {
-        super();
-        fromCertChains(authChain, signChain,rrnChain);
-    }
-
+    
     public Version4XMLFileCertificates()
     {
-        super();
+    	super();
+    }
+    
+    public Version4XMLFileCertificates(X509Certificate authCert,X509Certificate signCert, X509Certificate caCert,X509Certificate rrnCert, X509Certificate rootCert)
+    {
+    	super();
+    	setAuthenticationCertificate	(X509Utilities.X509CertToBase64String(authCert));
+    	setSigningCertificate			(X509Utilities.X509CertToBase64String(signCert));
+    	setCitizenCACertificate			(X509Utilities.X509CertToBase64String(caCert));
+    	setRRNCertificate				(X509Utilities.X509CertToBase64String(rrnCert));
+    	setRootCertificate				(X509Utilities.X509CertToBase64String(rootCert));
     }
 
-    public void fromCertChains(List<X509Certificate> authChain, List<X509Certificate> signChain, List<X509Certificate> rrnChain) throws CertificateEncodingException
+	public void fromCertChains(List<X509Certificate> authChain, List<X509Certificate> signChain, List<X509Certificate> rrnChain) throws CertificateEncodingException
     {
         if(authChain!=null && authChain.size()==3)
         {   
@@ -129,7 +135,7 @@ public final class Version4XMLFileCertificates
         X509Certificate         rrnCert = null;
         List<X509Certificate>   rrnChain=null;
 
-        if(getRootCertificate()==null || getCitizenCACertificate()==null || getSigningCertificate()==null || getRRNCertificate()==null)
+        if(getRootCertificate()==null || getRRNCertificate()==null)
             return null;
 
        certificateFactory = CertificateFactory.getInstance("X.509");

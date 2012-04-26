@@ -88,40 +88,40 @@ public class BelgianEidViewer extends javax.swing.JFrame implements View, Observ
 {
 	private static final long	serialVersionUID	= -4473336524368319021L;
 	private static final Logger logger = Logger.getLogger(BelgianEidViewer.class.getName());
-    private ResourceBundle bundle;
     private static final String EXTENSION_PNG = ".png";
     private static final String ICONS = "/be/fedict/eidviewer/gui/resources/icons/";
+     
+    private ResourceBundle 		bundle;
+    private JMenuBar 			menuBar;
     
-    private JMenuBar menuBar;
+    private JMenu 				fileMenu;
+    private JMenuItem 			printMenuItem;
+    private JMenuItem 			openMenuItem;
+    private JMenu 				saveAsMenu;
+    private JMenuItem 			saveAsXMLMenuItem;
+    private JMenuItem 			saveAsCSVMenuItem;
+    private JMenuItem 			closeMenuItem;
+    private JMenuItem 			preferencesMenuItem;
+    private JMenuItem 			fileMenuQuitItem;
     
-    private JMenu 		fileMenu;
-    private JMenuItem 	printMenuItem;
-    private JMenuItem 	openMenuItem;
-    private JMenu 		saveAsMenu;
-    private JMenuItem 		saveAsXMLMenuItem;
-    private JMenuItem 		saveAsCSVMenuItem;
-    private JMenuItem 	closeMenuItem;
-    private JMenuItem 	preferencesMenuItem;
-    private JMenuItem 	fileMenuQuitItem;
+    private JMenu 				helpMenu;
+    private JMenuItem 			aboutMenuItem;
+    private JCheckBoxMenuItem 	showLogMenuItem;
     
-    private JMenu helpMenu;
-    private JMenuItem aboutMenuItem;
-    private JCheckBoxMenuItem showLogMenuItem;
-    
-    private JMenu languageMenu;
-    private JMenuItem languageGermanMenuItem;   // Deutsch
-    private JMenuItem languageEnglishMenuItem;  // English
-    private JMenuItem languageFrenchMenuItem;   // Francais
-    private JMenuItem languageDutchMenuItem;    // Nederlands
+    private JMenu 				languageMenu;
+    private JMenuItem 			languageGermanMenuItem;   // Deutsch
+    private JMenuItem 			languageEnglishMenuItem;  // English
+    private JMenuItem 			languageFrenchMenuItem;   // Francais
+    private JMenuItem 			languageDutchMenuItem;    // Nederlands
    
-    private JButton printButton;
-    private JPanel printPanel;
-    private JLabel statusIcon;
-    private JPanel statusPanel;
-    private JLabel statusText;
-    private JTabbedPane tabPanel;
-    private PCSCEid eid;
-    private PCSCEidController eidController;
+    private JButton 			printButton;
+    private JPanel 				printPanel;
+    private JLabel 				statusIcon;
+    private JPanel 				statusPanel;
+    private JLabel 				statusText;
+    private JTabbedPane 		tabPanel;
+    private PCSCEid 			eid;
+    private PCSCEidController 	eidController;
     private TrustServiceController trustServiceController;
     private EnumMap<PCSCEidController.STATE, ImageIcon> cardStatusIcons;
     private EnumMap<PCSCEidController.STATE, String> cardStatusTexts;
@@ -235,7 +235,7 @@ public class BelgianEidViewer extends javax.swing.JFrame implements View, Observ
             {
                 printAction.setEnabled(eidController.hasIdentity() && eidController.hasAddress() && eidController.hasPhoto() && (PrinterJob.lookupPrintServices().length > 0));
                 
-                boolean safeToSave=eidController.hasIdentity() && eidController.hasAddress() && eidController.hasPhoto() && eidController.hasAuthCertChain();
+                boolean safeToSave=(eidController.getActivity()==PCSCEidController.ACTIVITY.IDLE) && eidController.hasIdentity() && eidController.hasAddress() && eidController.hasPhoto();
                 saveAsMenu.setEnabled(safeToSave);
                 saveAsXMLAction.setEnabled(safeToSave);
                 saveAsCSVAction.setEnabled(safeToSave);
