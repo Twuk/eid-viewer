@@ -186,9 +186,9 @@ public class PCSCEidController extends Observable implements Runnable, Observer,
         runningAction = ACTION.NONE;
     }
 
-    public void securityClear()
+    public void clear()
     {
-        logger.fine("securityClear");
+        logger.fine("clear");
         eid.clear();
         identity = null;
         address = null;
@@ -216,6 +216,7 @@ public class PCSCEidController extends Observable implements Runnable, Observer,
         
         try
         {
+        	clear();
             EidFiles.loadFromFile(file, this);
             setLoadedFromFile(true);
             setState(STATE.FILE_LOADED);
@@ -223,7 +224,7 @@ public class PCSCEidController extends Observable implements Runnable, Observer,
         catch(Exception ex)
         {
             logger.log(Level.SEVERE, "Failed To Load EID File", ex);
-            securityClear();
+            clear();
             setState(STATE.IDLE);
         }
     }
@@ -358,7 +359,7 @@ public class PCSCEidController extends Observable implements Runnable, Observer,
                 if(isLoadedFromFile())
                 {
                     logger.fine("clearing file-loaded data");
-                    securityClear();
+                    clear();
                     setState(STATE.IDLE);
                 }
                 
@@ -576,13 +577,13 @@ public class PCSCEidController extends Observable implements Runnable, Observer,
                 if(!isLoadedFromFile())
                 {
                     logger.fine("clearing data of removed card");
-                    securityClear();
+                    clear();
                     setState(STATE.IDLE);
                 }
             }
             catch (Exception ex)   // something failed. Clear out all data for security
             {
-                securityClear();
+                clear();
                 runningAction = ACTION.NONE;
                 setState(STATE.ERROR);
                 logger.log(Level.SEVERE, "Clearing Data for security reasons, due to unexpected problem.", ex);
@@ -833,7 +834,7 @@ public class PCSCEidController extends Observable implements Runnable, Observer,
         if(isLoadedFromFile())
         {
             setLoadedFromFile(false);
-            securityClear();
+            clear();
             setState(STATE.IDLE);
         }
     }

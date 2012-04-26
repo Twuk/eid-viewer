@@ -42,6 +42,10 @@ import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
+
 /**
  *
  * @author Frank Marien
@@ -89,6 +93,31 @@ public class IDPrintout implements Printable,ImageObserver
         // we only support printing all in one single page
         if (pageNumber > 0)
             return Printable.NO_SUCH_PAGE;
+       
+        logger.finest(new ToStringBuilder(this,
+                ToStringStyle.MULTI_LINE_STYLE)
+                .append("width", pageFormat.getWidth())
+                .append("height", pageFormat.getHeight())
+                .append("imageableWidth", pageFormat.getImageableWidth())
+                .append("imageableHeight", pageFormat.getImageableHeight())
+                .append("imageableX", pageFormat.getImageableX())
+                .append("imageableY", pageFormat.getImageableY())
+                .append("orientation", pageFormat.getOrientation())
+                .append("paper.width", pageFormat.getPaper().getWidth())
+                .append("paper.height", pageFormat.getPaper().getHeight())
+                .append("paper.imageableWidth", pageFormat.getPaper().getImageableWidth())
+                .append("paper.imageableHeight", pageFormat.getPaper().getImageableHeight())
+                .append("paper.imageableX", pageFormat.getPaper().getImageableX())
+                .append("paper.imageableY", pageFormat.getPaper().getImageableY())
+                .toString());
+        
+        logger.finest(new ToStringBuilder(this,
+                ToStringStyle.MULTI_LINE_STYLE)
+                .append("clip.width", graphics.getClipBounds().width)
+                .append("clip.height", graphics.getClipBounds().height)
+                .append("clip.x", graphics.getClipBounds().x)
+                .append("clip.y", graphics.getClipBounds().y)
+                .toString());
 
         // translate graphics2D with origin at top left first imageable location
         Graphics2D graphics2D = (Graphics2D) graphics;
