@@ -108,7 +108,7 @@ public class TextFormatHelper
             //B 0123456 78
     		formatted.append(cardNumber.substring(0,1));
     		formatted.append(' ');
-    		formatted.append(cardNumber.substring(1,7));
+    		formatted.append(cardNumber.substring(1,8));
     		formatted.append(' ');
     		formatted.append(cardNumber.substring(8));
     	}
