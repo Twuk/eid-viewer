@@ -52,6 +52,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JSeparator;
@@ -89,22 +90,34 @@ public class CertificatesPanel extends JPanel implements Observer, TreeSelection
     private static final String                     ICONS = "/be/fedict/eidviewer/gui/resources/icons/";
     private ResourceBundle                          bundle;
     
-    private JCheckBox 				alwaysValidateCheckbox;
-    private JPanel 					authCertsPanel,certDetailsPanel,trustPrefspanel;
-    private JLabel 					certificateIcon,certsBusyIcon;
-    private JSplitPane 				certsDetailsSplitPane;
-    private JTree 					certsTree;
-    private JLabel 					dn,keyUsage,keyUsageLabel;
-    private JSeparator 				keyUsageTrustSeparator;
-    private JLabel 					spacer,trustErrors;
-    private JSeparator 				trustServiceTrustErrorsSeparator;
-    private JLabel 					trustStatus,trustStatusLabel,validFrom,validFromLabel,validUntil,validUntilLabel;
+    private JCheckBox alwaysValidateCheckbox;
+    private JPanel authCertsPanel;
+    private JPanel certDetailsPanel;
+    private JLabel certificateIcon;
+    private JLabel certsBusyIcon;
+    private JSplitPane certsDetailsSplitPane;
+    private JTree certsTree;
+    private JLabel dn;
+    private JLabel keyUsage;
+    private JLabel keyUsageLabel;
+    private JSeparator keyUsageTrustSeparator;
+    private JLabel spacer;
+    private JLabel trustErrors;
+    private JPanel trustPrefspanel;
+    private JSeparator trustServiceTrustErrorsSeparator;
+    private JLabel trustStatus;
+    private JLabel trustStatusLabel;
+    private JLabel 					validFrom;
+    private JLabel 					validFromLabel;
+    private JLabel 					validUntil;
+    private JLabel 					validUntilLabel;
     private JButton 				validateNowButton;
     private JSeparator 				validdUntilKeyUsageSeparator;
     
     private ExportPEMAction			exportPEMAction;
     private ExportDERAction			exportDERAction;
     private	ExportChainPEMAction	exportChainPEMAction;
+    private	CertificateDetailAction	certificateDetailAction;
     private X509CertificateAndTrust	exportingCertificate;
     
     private DateFormat                              dateFormat;
@@ -129,9 +142,10 @@ public class CertificatesPanel extends JPanel implements Observer, TreeSelection
     
     private void initActions()
     {
-        exportPEMAction    	 	= new ExportPEMAction      ("Export to PEM..");
-        exportDERAction    	 	= new ExportDERAction      ("Export to DER..");
-        exportChainPEMAction    = new ExportChainPEMAction ("Export Chain to PEM..");
+        exportPEMAction    	 	= new ExportPEMAction      		("Export to PEM..");
+        exportDERAction    	 	= new ExportDERAction      		("Export to DER..");
+        exportChainPEMAction    = new ExportChainPEMAction 		("Export Chain to PEM..");
+        certificateDetailAction = new CertificateDetailAction 	("Show All Information..");
     }
 
     public CertificatesPanel setEidController(PCSCEidController eidController)
@@ -160,15 +174,14 @@ public class CertificatesPanel extends JPanel implements Observer, TreeSelection
         if(eidController.getState() == PCSCEidController.STATE.EID_PRESENT || eidController.getState()==PCSCEidController.STATE.EID_YIELDED || eidController.getState()==PCSCEidController.STATE.FILE_LOADED)
         {
             logger.finest("Filling Out Certificate Data..");
-            
-            if(eidController.hasRRNCertChain())
-                addCerts(eidController.getRRNCertChain());
-            
             if(eidController.hasAuthCertChain())
                 addCerts(eidController.getAuthCertChain());
 
             if(eidController.hasSignCertChain())
-                addCerts(eidController.getSignCertChain());  
+                addCerts(eidController.getSignCertChain());
+            
+            if(eidController.hasRRNCertChain())
+                addCerts(eidController.getRRNCertChain());
         }
         else
         {
@@ -278,6 +291,7 @@ public class CertificatesPanel extends JPanel implements Observer, TreeSelection
         {
             X509CertificateAndTrust certAndTrust = (X509CertificateAndTrust) treeNode.getUserObject();
             certificateSelected(certAndTrust);
+            System.out.println(certAndTrust.getCertificate().toString());
         }
         else
         {
@@ -457,6 +471,8 @@ public class CertificatesPanel extends JPanel implements Observer, TreeSelection
                 		exportingCertificate=(X509CertificateAndTrust)nodeInfo;
                 		
                 		JPopupMenu certContextMenu=new JPopupMenu();
+                		certContextMenu.add(new JMenuItem(certificateDetailAction));  
+                		certContextMenu.addSeparator();
             	        certContextMenu.add(new JMenuItem(exportPEMAction));  
             	        certContextMenu.add(new JMenuItem(exportDERAction));  
                 		if(!X509Utilities.isSelfSigned(exportingCertificate.getCertificate()))
@@ -667,6 +683,7 @@ public class CertificatesPanel extends JPanel implements Observer, TreeSelection
         exportPEMAction.setName(bundle.getString("exportToPEM"));
         exportDERAction.setName(bundle.getString("exportToDER"));
         exportChainPEMAction.setName(bundle.getString("exportChainToPEM"));
+        certificateDetailAction.setName(bundle.getString("showDetails"));
         
         if(certificatesInTree==null)
         	return;
@@ -1032,4 +1049,19 @@ public class CertificatesPanel extends JPanel implements Observer, TreeSelection
             }
         }
     }
+	
+	 private class CertificateDetailAction extends DynamicLocaleAbstractAction
+	    {
+		private static final long	serialVersionUID	= -3054897441714476522L;
+
+			public CertificateDetailAction(String text)
+	        {
+	            super(text);
+	        }
+	        
+	        public void actionPerformed(ActionEvent ae)
+	        {
+	            JOptionPane.showMessageDialog(null, new CertificateDetailPanel(exportingCertificate.getCertificate().toString()),bundle.getString("showDetails"),JOptionPane.PLAIN_MESSAGE);
+	        }
+	    }
 }
