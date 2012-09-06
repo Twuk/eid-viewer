@@ -186,9 +186,9 @@ public class PCSCEidController extends Observable implements Runnable, Observer,
         runningAction = ACTION.NONE;
     }
 
-    public void clear()
+    public void securityClear()
     {
-        logger.fine("clear");
+        logger.fine("securityClear");
         eid.clear();
         identity = null;
         address = null;
@@ -216,7 +216,6 @@ public class PCSCEidController extends Observable implements Runnable, Observer,
         
         try
         {
-        	clear();
             EidFiles.loadFromFile(file, this);
             setLoadedFromFile(true);
             setState(STATE.FILE_LOADED);
@@ -224,7 +223,7 @@ public class PCSCEidController extends Observable implements Runnable, Observer,
         catch(Exception ex)
         {
             logger.log(Level.SEVERE, "Failed To Load EID File", ex);
-            clear();
+            securityClear();
             setState(STATE.IDLE);
         }
     }
@@ -232,11 +231,6 @@ public class PCSCEidController extends Observable implements Runnable, Observer,
     public void saveToXMLFile(File selectedFile)
     {
         EidFiles.saveToXMLFile(selectedFile, this);
-    }
-    
-    public void saveToCSVFile(File selectedFile)
-    {
-        EidFiles.saveToCSVFile(selectedFile, this);
     }
 
     public static enum STATE
@@ -359,7 +353,7 @@ public class PCSCEidController extends Observable implements Runnable, Observer,
                 if(isLoadedFromFile())
                 {
                     logger.fine("clearing file-loaded data");
-                    clear();
+                    securityClear();
                     setState(STATE.IDLE);
                 }
                 
@@ -577,13 +571,13 @@ public class PCSCEidController extends Observable implements Runnable, Observer,
                 if(!isLoadedFromFile())
                 {
                     logger.fine("clearing data of removed card");
-                    clear();
+                    securityClear();
                     setState(STATE.IDLE);
                 }
             }
             catch (Exception ex)   // something failed. Clear out all data for security
             {
-                clear();
+                securityClear();
                 runningAction = ACTION.NONE;
                 setState(STATE.ERROR);
                 logger.log(Level.SEVERE, "Clearing Data for security reasons, due to unexpected problem.", ex);
@@ -834,7 +828,7 @@ public class PCSCEidController extends Observable implements Runnable, Observer,
         if(isLoadedFromFile())
         {
             setLoadedFromFile(false);
-            clear();
+            securityClear();
             setState(STATE.IDLE);
         }
     }
@@ -889,71 +883,6 @@ public class PCSCEidController extends Observable implements Runnable, Observer,
     		}
     	}
     }
-
-	@Override
-	public X509Certificate getAuthCert()
-	{
-		try
-		{
-			return eid.getAuthCert();
-		}
-		catch (Exception e)
-		{
-			return null;
-		}
-	}
-
-	@Override
-	public X509Certificate getSignCert()
-	{
-		try
-		{
-			return eid.getSignCert();
-		}
-		catch (Exception e)
-		{
-			return null;
-		}
-	}
-
-	@Override
-	public X509Certificate getRRNCert()
-	{
-		try
-		{
-			return eid.getRRNCert();
-		}
-		catch (Exception e)
-		{
-			return null;
-		}
-	}
-
-	@Override
-	public X509Certificate getCACert()
-	{
-		try
-		{
-			return eid.getCitizenCACert();
-		}
-		catch (Exception e)
-		{
-			return null;
-		}
-	}
-
-	@Override
-	public X509Certificate getRootCert()
-	{
-		try
-		{
-			return eid.getRootCACert();
-		}
-		catch (Exception e)
-		{
-			return null;
-		}
-	}
 
 	
 }

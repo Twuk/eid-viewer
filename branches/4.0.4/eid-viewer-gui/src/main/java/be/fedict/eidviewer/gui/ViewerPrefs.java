@@ -19,15 +19,11 @@
 package be.fedict.eidviewer.gui;
 
 import be.fedict.eidviewer.gui.helper.ProxyUtils;
-
-import java.io.File;
-import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.prefs.Preferences;
 
 /**
@@ -36,8 +32,6 @@ import java.util.prefs.Preferences;
  */
 public class ViewerPrefs
 {
-	private static final Logger logger = Logger.getLogger(ViewerPrefs.class.getName());
-	
     public static final int             PROXY_DIRECT                     = 0;
     public static final int             PROXY_SYSTEM                     = 1;
     public static final int             PROXY_SPECIFIC                   = 2;
@@ -52,8 +46,6 @@ public class ViewerPrefs
     public static final String          LOG_LEVEL                        = "log_level";
     public static final String          LOCALE_LANGUAGE                  = "locale_language";
     public static final String          LOCALE_COUNTRY                   = "locale_country";
-    public static final String          LAST_SAVE_LOCATION               = "last_save_location";
-    public static final String          LAST_OPEN_LOCATION               = "last_open_location";
     
     public static final boolean         DEFAULT_AUTO_VALIDATE_TRUST     = false;
 
@@ -69,8 +61,8 @@ public class ViewerPrefs
     
     public static final String          DEFAULT_LOCALE_LANGUAGE         = "en";
     public static final String          DEFAULT_LOCALE_COUNTRY          = "US";
-    public static final String          DEFAULT_LAST_SAVE_LOCATION      = null;	// null = reasonable default: user's home.
-    public static final String          DEFAULT_LAST_OPEN_LOCATION      = null;	// null = reasonable default: user's home.
+    
+    
     
     private static final String         COLON_SLASH_SLASH               = "://";
     
@@ -231,62 +223,6 @@ public class ViewerPrefs
     public static int getProxyTypeSet()
     {
         return getPrefs()!=null?getPrefs().getInt(HTTP_PROXY_TYPE, DEFAULT_HTTP_PROXY_TYPE):DEFAULT_HTTP_PROXY_TYPE;
-    }
-    
-    public static File getLastSaveLocation()
-    {
-    	if(getPrefs()==null)
-            return null;
-    	String path=getPrefs().get(LAST_SAVE_LOCATION, DEFAULT_LAST_SAVE_LOCATION);
-    	if(path==null)
-    		return null;
-    	File file=new File(path);
-    	if(!file.exists())
-    		return null;
-        return file;
-    }
-
-    public static void setLastSaveLocation(File file)
-    {
-        if(getPrefs()==null)
-            return;
-        
-        try
-        {
-        	getPrefs().put(LAST_SAVE_LOCATION, file.getCanonicalPath());
-		} 
-        catch (IOException iox)
-        {
-        	logger.log(Level.SEVERE,"Can't Save Last Open Location",iox);
-		}  
-    }
-    
-    public static File getLastOpenLocation()
-    {
-    	if(getPrefs()==null)
-            return null;
-    	String path=getPrefs().get(LAST_OPEN_LOCATION, DEFAULT_LAST_OPEN_LOCATION);
-    	if(path==null)
-    		return null;
-    	File file=new File(path);
-    	if(!file.exists())
-    		return null;
-        return file;
-    }
-
-    public static void setLastOpenLocation(File file)
-    {
-        if(getPrefs()==null)
-            return;
-        
-        try
-        {
-        	getPrefs().put(LAST_OPEN_LOCATION, file.getCanonicalPath());
-		} 
-        catch (IOException iox)
-        {
-        	logger.log(Level.SEVERE,"Can't Save Last Open Location",iox);
-		}  
     }
     
     private static boolean isLocaleSupported(String language, String country)

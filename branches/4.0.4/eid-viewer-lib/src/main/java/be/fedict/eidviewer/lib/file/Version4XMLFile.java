@@ -47,15 +47,8 @@ public class Version4XMLFile
     private Version4XMLFileAddress         address;
     @Element (name="certificates")
     private Version4XMLFileCertificates    certificates;
-    
-    
 
-    public Version4XMLFile()
-    {
-    	super();
-	}
-
-	public static void toXML(Version4XMLFile v4File, OutputStream outputStream) throws Exception
+    public static void toXML(Version4XMLFile v4File, OutputStream outputStream) throws Exception
     {
         Serializer  serializer = new Persister();
                     serializer.write(v4File, outputStream);
@@ -67,15 +60,14 @@ public class Version4XMLFile
              return serializer.read(Version4XMLFile.class, inputStream);
 
     }
-    
-    public void fromIdentityAddressPhotoAndCertificates(Identity eidIdentity,Address eidAddress, byte[] photo, X509Certificate authCert,X509Certificate signCert, X509Certificate caCert,X509Certificate rrnCert, X509Certificate rootCert)
+
+    public void fromIdentityAddressPhotoAndCertificates(Identity eidIdentity, Address eidAddress, byte[] photo,List<X509Certificate> authChain, List<X509Certificate> signChain, List<X509Certificate> rrnChain) throws Exception
     {
-    	identity    =new Version4XMLFileIdentity(eidIdentity,photo);
+        identity    =new Version4XMLFileIdentity(eidIdentity,photo);
         card        =new Version4XMLFileCard(eidIdentity);
         address     =new Version4XMLFileAddress(eidAddress);
-        certificates=new Version4XMLFileCertificates(authCert,signCert,caCert,rrnCert,rootCert);
-		
-	}
+        certificates=new Version4XMLFileCertificates(authChain, signChain, rrnChain);
+    }
 
     public Identity toIdentity() throws ParseException
     {
@@ -151,6 +143,4 @@ public class Version4XMLFile
     {
         this.certificates = certificates;
     }
-
-	
 }

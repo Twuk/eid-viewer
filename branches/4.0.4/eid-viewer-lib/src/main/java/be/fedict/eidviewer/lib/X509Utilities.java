@@ -36,7 +36,6 @@ import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.apache.commons.codec.binary.Base64;
 import org.bouncycastle.openssl.PEMWriter;
 
 /**
@@ -162,6 +161,7 @@ public class X509Utilities
         }
     }
     
+    // TODO, there are now cards with SHA2?
     public static boolean isValidSignature(X509Certificate certificate, byte[] data, byte[] data2, byte[] signature )
     {
         try
@@ -205,26 +205,5 @@ public class X509Utilities
 		for(X509Certificate certificate : certificates)
 			pemWriter.writeObject(certificate);
     	pemWriter.close();
-	}
-	
-	public static String eidBase64Encode(byte[] data)
-    {
-    	Base64 encoder=new Base64(60,new byte[]{' '},false);
-    	return new String(encoder.encode(data)).trim();
-    }
-	
-	public static String X509CertToBase64String(X509Certificate certificate)
-	{
-		if(certificate==null)
-			return null;
-		
-		try
-		{
-			return eidBase64Encode(certificate.getEncoded());
-		}
-		catch (CertificateEncodingException e)
-		{
-			return null;
-		}
 	}
 }
